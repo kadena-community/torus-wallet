@@ -62,7 +62,7 @@ const RightContainer = styled.div`
   @media (min-width: ${({ theme: { mediaQueries } }) =>
       mediaQueries.mobileBreakpoint}) {
       margin-right: 0px;
-    
+
   }
 `;
 
@@ -87,7 +87,7 @@ const ContentContainer = styled.div`
   display: flex;
   flex-flow: column;
   align: center;
-  
+
 `;
 
 const KeyContainer = styled.div`
@@ -146,7 +146,7 @@ const BalanceCurrencyTitle = styled.span`
   color: #FFFFFF;
   text-transform: capitalize;
   opacity: 1;
-  
+
 `;
 
 const CurrencyBalance = styled.span`
@@ -203,7 +203,7 @@ const ButtonContainer = styled.div`
   }
 `;
 
- 
+
 
 
 function DashboardContainer (props) {
@@ -212,7 +212,7 @@ function DashboardContainer (props) {
 
 
     return (
-      
+
             <MainContainer>
               <HeaderContainer>
                 <LeftContainer>
@@ -223,8 +223,8 @@ function DashboardContainer (props) {
                   <Item className="mobile-none">Transfer</Item>
                 </LeftContainer>
                 <RightContainer>
-                  
-                  
+
+
                   <Item to="#" className="mobile-none">
                     <Popup
                       basic
@@ -254,7 +254,7 @@ function DashboardContainer (props) {
                     >
                     <Item style={{ color: "#FFFFFF", backgroundColor: "rgb(37 29 100)" }} onClick={() =>  auth.logout() }>Log out</Item>
                     </Popup>
-                    
+
                   </Item>
                 <Item className="desktop-none" style={{ marginRight: "70px"}}>
                     <Label style={{ marginRight: "15px", color: "#FFFFFF", fontSize: 16}}>{auth.user.username}</Label>
@@ -268,15 +268,15 @@ function DashboardContainer (props) {
                     >
                     <Item style={{ color: "#FFFFFF", backgroundColor: "rgb(37 29 100)"}} onClick={() =>  auth.logout() }>Log out</Item>
                     </Popup>
-                    
+
                   </Item>
                 </RightContainer>
               </HeaderContainer>
-                
+
             <ContentContainer>
               <KeyContainer>
                   <TitleContainer>
-                    <Title>Your Public Key:</Title>
+                    <Title>Your Public Key (TESTNET):</Title>
                   </TitleContainer>
                 <FormContainer style={{ color: '#FFFFFF', flexFlow: "row" }} id="pubKey">
                   <div className="mobile-none">{auth.user.publicKey}</div>
@@ -293,7 +293,7 @@ function DashboardContainer (props) {
                         onClick={() => { navigator.clipboard.writeText(auth.user.publicKey) }}
                       />}
                   />
-                  
+
                 </FormContainer>
                 </KeyContainer>
               <TitleContainer>
@@ -320,7 +320,7 @@ function DashboardContainer (props) {
                     </Button.Group>
                   </ButtonContainer>
                  </FormContainer>
-                
+
             </ContentContainer>
                 <ButtonContainer >
                   <a href="https://faucet.testnet.chainweb.com/" target="_blank" rel="noreferrer">
@@ -329,11 +329,11 @@ function DashboardContainer (props) {
                     </MyButton>
                   </a>
                 </ButtonContainer>
-                
+
             </MainContainer>
-            
+
     );
-  
+
 }
 
 export default DashboardContainer;
