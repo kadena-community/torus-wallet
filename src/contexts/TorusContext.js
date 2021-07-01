@@ -10,7 +10,7 @@ export const TorusProvider = (props) => {
         const init = async () => {
         try {
         const torusDirectSdk = new TorusSdk({
-            baseUrl: `${window.location.origin}/serviceworker`,
+		baseUrl: `${window.location.origin}/serviceworker`,
             enableLogging: true,
             redirectToOpener: true,
             network: process.env.REACT_APP_TORUS_NETWORK,

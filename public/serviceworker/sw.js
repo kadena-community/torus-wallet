@@ -224,7 +224,7 @@ self.addEventListener("fetch", function (event) {
                 },
                 error: error,
               },
-              "http://localhost:3000"
+              "https://torus.chainweb.com"
             );
           } else {
             // communicate via broadcast channel

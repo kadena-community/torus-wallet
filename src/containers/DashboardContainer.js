@@ -61,6 +61,7 @@ const RightContainer = styled.div`
   & > *:not(:first-child):not(:last-child) {
     margin-right: 14px;
   }
+
   
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
@@ -69,6 +70,7 @@ const RightContainer = styled.div`
     margin-bottom: 10px;
     margin-right: 70px;
   }
+
   }
 `;
 
@@ -94,10 +96,12 @@ const ContentContainer = styled.div`
   display: flex;
   flex-flow: column;
   align: center;
+
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     margin-top: 30px;
   }
+
 `;
 
 
@@ -204,7 +208,7 @@ const BalanceCurrencyTitle = styled.span`
   color: #FFFFFF;
   text-transform: capitalize;
   opacity: 1;
-  
+
 `;
 
 const CurrencyBalance = styled.span`
@@ -261,6 +265,7 @@ const ButtonContainer = styled.div`
   }
 `;
 
+
 const ToggleContainer = styled.div`
   display: flex;
   border: 1px solid #FCFCFC;
@@ -274,8 +279,6 @@ const ToggleContainer = styled.div`
   
 `;
 
-
- 
 
 
 function DashboardContainer (props) {
@@ -298,6 +301,7 @@ function DashboardContainer (props) {
   } */
 
     return (
+
       <>
       
             {auth.loading && (
@@ -306,6 +310,7 @@ function DashboardContainer (props) {
               </Dimmer>
             )}
           
+
             <MainContainer>
               <HeaderContainer>
                 <LeftContainer>
@@ -316,6 +321,7 @@ function DashboardContainer (props) {
                   <Item className="mobile-none">Transfer</Item>
                 </LeftContainer>
                 <RightContainer>
+
                   <ToggleContainer >
                     <ToggleSwitchButton 
                       label1= {MAINNET.label}
@@ -326,6 +332,7 @@ function DashboardContainer (props) {
                   </ToggleContainer>
                   
                   {/* <Item to="#" className="mobile-none">
+
                     <Popup
                       basic
                       trigger={<CogIcon />}
@@ -354,7 +361,7 @@ function DashboardContainer (props) {
                     >
                     <Item style={{ color: "#FFFFFF", backgroundColor: "rgb(37 29 100)" }} onClick={() =>  auth.logout() }>Log out</Item>
                     </Popup>
-                    
+
                   </Item>
                 <Item className="desktop-none" style={{ marginRight: "70px"}}>
                     <Label style={{ marginRight: "15px", color: "#FFFFFF", fontSize: 16}}>{auth.user.username}</Label>
@@ -368,15 +375,15 @@ function DashboardContainer (props) {
                     >
                     <Item style={{ color: "#FFFFFF", backgroundColor: "rgb(37 29 100)"}} onClick={() =>  auth.logout() }>Log out</Item>
                     </Popup>
-                    
+
                   </Item>
                 </RightContainer>
               </HeaderContainer>
-                
+
             <ContentContainer>
               <KeyContainer>
                   <TitleContainer>
-                    <Title>Your Public Key:</Title>
+                    <Title>Your Public Key (TESTNET):</Title>
                   </TitleContainer>
                 <FormContainer style={{ color: '#FFFFFF', flexFlow: "row" }} id="pubKey">
                   <div className="mobile-none">{auth.user.publicKey}</div>
@@ -393,7 +400,7 @@ function DashboardContainer (props) {
                         onClick={() => { navigator.clipboard.writeText(auth.user.publicKey) }}
                       />}
                   />
-                  
+
                 </FormContainer>
                 </KeyContainer>
               <TitleContainer>
@@ -465,8 +472,9 @@ function DashboardContainer (props) {
                     </Button.Group>
                   </ButtonContainer>
                  </FormContainer>
-                
+
             </ContentContainer>
+
             {networkContext.network.name === "testnet" && !auth.loading && (
               <ButtonContainer >
                 <a href="https://faucet.testnet.chainweb.com/" target="_blank" rel="noreferrer">
@@ -478,8 +486,9 @@ function DashboardContainer (props) {
             )}
             </MainContainer>
         </>
+
     );
-  
+
 }
 
 export default DashboardContainer;
