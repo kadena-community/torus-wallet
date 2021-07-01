@@ -4,16 +4,25 @@ import styled from "styled-components/macro";
 import { Button as SUIButton } from "semantic-ui-react";
 
 const StyledButton = styled(SUIButton)`
-  font-family: montserrat-bold !important;
+  font-family: roboto-bold !important;
   font-size: ${({ fontSize }) =>
     fontSize ? fontSize + " !important" : "16px !important"};
-  color: ${({ color }) => (color ? color + " !important" : "white !important")};
+  color: ${({
+    color,
+    inverted
+  }) =>{
+    if (color) return color + " !important";
+    if (inverted) return "#281F71 !important";
+    return " white !important";
+  }};
   background: ${({
     disabled,
     background,
+    inverted,
     theme: { buttonBackgroundGradient },
   }) => {
     if (background) return background + " !important";
+    if (inverted) return "#FFFFFF !important";
     if (disabled) return "transparent !important";
     return buttonBackgroundGradient + "!important";
   }};
@@ -50,6 +59,7 @@ const Button = ({
   children,
   onClick,
   loading,
+  inverted,
   hover,
 }) => {
   return (
@@ -65,6 +75,7 @@ const Button = ({
       border={border}
       boxShadow={boxShadow}
       hover={hover}
+      inverted={inverted}
     >
       {children}
     </StyledButton>

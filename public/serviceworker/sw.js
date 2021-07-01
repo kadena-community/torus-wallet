@@ -47,7 +47,7 @@ self.addEventListener("fetch", function (event) {
       h1.title {
         font-size: 14px;
         color: #0f1222;
-        font-family: "Roboto", sans-serif !important;
+        font-family: "roboto-bold", sans-serif !important;
         margin: 0;
         text-align: center;
       }

@@ -24,7 +24,7 @@ export default createGlobalStyle`
       line-height: inherit;
       overflow: auto;
       min-width: 0;
-      font-family: montserrat-regular;
+      font-family: roboto-regular;
       color: ${({ theme: { colors } }) => colors.primary};
       background: transparent radial-gradient(closest-side at 51% 50%, #2B237C 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box;
       opacity: 1;

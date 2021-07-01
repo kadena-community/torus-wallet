@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import Pact from 'pact-lang-api';
 import { TorusContext } from './TorusContext';
-import getBalance from '../util/getBalance';
+import { PactContext } from './PactContext';
+import { NetworkContext } from './NetworkContext';
 
 const GOOGLE = "google";
 
@@ -17,9 +18,26 @@ const GOOGLE = "google";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = (props) => {
+    const pact = useContext(PactContext);
+    const networkContext = useContext(NetworkContext);
     const [user, setUser] = useState (null);
-    const [loading, setLoading] = useState (false);
+    const [loading, setLoading] = useState(false);
+    const [totalBalance, setTotalBalance] = useState(0);
     const torus = useContext(TorusContext);
+
+    useEffect(() => {
+        async function getBalanceWrapper() {
+            if (user?.publicKey) {
+                setLoading(true);
+                const balance = await pact.getBalance('coin', user.publicKey);
+                setUser({ ...user, balance: balance });
+                setLoading(false);
+                
+            }
+        }
+        getBalanceWrapper()
+    }, [networkContext.network])
+
 
     const login = async () => {
         setLoading(true);
@@ -32,8 +50,8 @@ export const AuthProvider = (props) => {
             });
 
             const keyPair = Pact.crypto.restoreKeyPairFromSecretKey(loginDetails.privateKey);
-            const balance = await getBalance('coin', keyPair.publicKey);
-            setUser({ username: loginDetails?.userInfo?.name, publicKey: keyPair.publicKey, balance: balance[0] });
+            const balance = await pact.getBalance('coin', keyPair.publicKey);
+            setUser({ username: loginDetails?.userInfo?.name, publicKey: keyPair.publicKey, balance: balance  });
         }
         catch (error) { console.error(error, "login caught"); }
         finally { setLoading(false); }
@@ -45,7 +63,7 @@ export const AuthProvider = (props) => {
     
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, totalBalance }}>
             {props.children}
         </AuthContext.Provider>
     );
