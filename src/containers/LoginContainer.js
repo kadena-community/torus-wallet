@@ -1,9 +1,10 @@
 import React, { useContext} from "react";
 import { Button, Loader, Dimmer } from 'semantic-ui-react';
 import styled from 'styled-components/macro';
-import { ReactComponent as HomeImage } from "../assets/images/image.svg";
+import { ReactComponent as HomeLogoImage } from "../assets/images/kadena-torus.svg";
 import { ReactComponent as GoogleLogo } from "../assets/images/google_logo.svg";
 import { AuthContext } from "../contexts/AuthContext";
+import { ViewportContext } from "../contexts/ViewportContext";
 
 
 const HomeContainer = styled.div`
@@ -23,9 +24,23 @@ const HomeContainer = styled.div`
   background: transparent radial-gradient(closest-side at 31% -64%, #2B237C 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box;;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
-    margin: 48px 18px;
+    margin: 30px 18px 18px;
     padding 0px;
+    flex-flow: column;
   }
+`;
+
+
+const HomeTopContainer = styled.div`
+  display: flex;
+  flex-flow: column;
+  justify-content: left;
+  align-items: flex-start;
+  padding: 10px 20px 0px;
+  /* height: 100%; */
+  width: 75%;
+  background: transparent;
+  opacity: 1;
 `;
 
 const HomeLeftContainer = styled.div`
@@ -41,6 +56,7 @@ const HomeLeftContainer = styled.div`
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     width: 0%;
+    height: 0%;
     padding: 0px;
   }
 `;
@@ -72,7 +88,7 @@ const HomeRightContent = styled.div`
 
 
 const HomeTitle = styled.span`
-  font: normal normal bold 32px/38px Roboto;
+  font: normal normal bold 32px/38px roboto-bold;
   text-align: left;
   letter-spacing: 0px;
   color: #212121;
@@ -82,7 +98,7 @@ const HomeTitle = styled.span`
 `;
 
 const HomeSubTitle = styled.span`
-  font: normal normal bold 24px/32px Roboto;
+  font: normal normal bold 24px/32px roboto-regular;
   text-align: left;
   letter-spacing: 0px;
   color: #212121;
@@ -92,7 +108,7 @@ const HomeSubTitle = styled.span`
 `;
 
 const HomeParagraph = styled.span`
-  font: normal normal normal 16px/21px Roboto;
+  font: normal normal normal 16px/21px roboto-regular;
   text-align: left;
   letter-spacing: 0px;
   color: #212121;
@@ -102,7 +118,7 @@ const HomeParagraph = styled.span`
 `;
 
 const HomeButtonText = styled.span`
-  font: normal normal bold 17px/21px Roboto;
+  font: normal normal bold 17px/21px roboto-bold;
   text-align: left;
   letter-spacing: 0px;
   color: #212121;
@@ -123,6 +139,7 @@ const ButtonContent = styled.div`
 function LoginContainer (props) {
 
   const auth = useContext(AuthContext);
+  const viewport = useContext(ViewportContext)
 
   const login = async () => {
      await auth.login();
@@ -130,11 +147,22 @@ function LoginContainer (props) {
 
     return (
         
-        <>
+      <>
+        {viewport.isMobile && 
+          <HomeTopContainer className="desktop-none">
+            <HomeLogoImage className="desktop-none" style={{ maxWidth: "100%" }} />
+          </HomeTopContainer>
+         
+        }
+        
+        
         <HomeContainer >
+          {!viewport.isMobile &&
             <HomeLeftContainer>
-            <HomeImage className="mobile-none" style={{maxWidth: "100%"}}/>
+              <HomeLogoImage className="mobile-none" style={{maxWidth: "100%"}}/>
             </HomeLeftContainer>
+          }
+            
             <HomeRightContainer>
             <HomeRightContent>
                 <HomeTitle>Hi, Welcome Back!</HomeTitle>
