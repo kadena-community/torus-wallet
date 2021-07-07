@@ -62,7 +62,7 @@ const RightContainer = styled.div`
     margin-right: 14px;
   }
 
-  
+
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     flex-flow: column;
@@ -276,7 +276,7 @@ const ToggleContainer = styled.div`
     justify-content: center;
     align-items: center;
   }
-  
+
 `;
 
 
@@ -303,13 +303,13 @@ function DashboardContainer (props) {
     return (
 
       <>
-      
+
             {auth.loading && (
               <Dimmer active style={{ borderRadius: "16px" }}>
                 <Loader content='Switching Network..' />
               </Dimmer>
             )}
-          
+
 
             <MainContainer>
               <HeaderContainer>
@@ -323,14 +323,14 @@ function DashboardContainer (props) {
                 <RightContainer>
 
                   <ToggleContainer >
-                    <ToggleSwitchButton 
+                    <ToggleSwitchButton
                       label1= {MAINNET.label}
                       label2= {TESTNET.label}
                       background= "#FFFFFF"
                       onChange = { () => {}}
                     />
                   </ToggleContainer>
-                  
+
                   {/* <Item to="#" className="mobile-none">
 
                     <Popup
@@ -342,7 +342,7 @@ function DashboardContainer (props) {
                       style={{ backgroundColor: "rgb(37 29 100)" }}
                     >
                     <Item style={{ color: "#FFFFFF", backgroundColor: "rgb(37 29 100)" }} >Testnet</Item>
-                    <Item style={{ color: "#FFFFFF", backgroundColor: "rgb(37 29 100)", marginTop: "10px" }}>Mainnet</Item> 
+                    <Item style={{ color: "#FFFFFF", backgroundColor: "rgb(37 29 100)", marginTop: "10px" }}>Mainnet</Item>
                     </Popup>
                   </Item> */}
                 <Item className="mobile-none">
@@ -383,7 +383,7 @@ function DashboardContainer (props) {
             <ContentContainer>
               <KeyContainer>
                   <TitleContainer>
-                    <Title>Your Public Key (TESTNET):</Title>
+                    <Title>Your Public Key:</Title>
                   </TitleContainer>
                 <FormContainer style={{ color: '#FFFFFF', flexFlow: "row" }} id="pubKey">
                   <div className="mobile-none">{auth.user.publicKey}</div>
@@ -405,7 +405,7 @@ function DashboardContainer (props) {
                 </KeyContainer>
               <TitleContainer>
                     <Title>Account Balance</Title>
-                    {networkContext.network.name === "mainnet" && !auth.loading && (
+                    {!auth.loading && (
                       <SubTitleContainer>
                       <Popup
                       basic
@@ -415,7 +415,7 @@ function DashboardContainer (props) {
                       on="click"
                       offset={[0, 1]}
                       position="bottom left"
-                      style={{  
+                      style={{
                         height: "196px",
                         overflow: "auto",
                         background: "transparent radial-gradient(closest-side at 31% -64%, #201669 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box",
@@ -431,9 +431,9 @@ function DashboardContainer (props) {
                             <Item>{reduceBalance(bal)}</Item>
                           </ChainBalanceContainer>
                         )
-                        
+
                       })}
-                       {/*  
+                       {/*
                         <ChainBalanceContainer>
                           <ChainName>Chain 0</ChainName>
                           <Item>1233333.8888</Item>
@@ -442,14 +442,14 @@ function DashboardContainer (props) {
                           <ChainName>Chain 1</ChainName>
                           <Item>3.00</Item>
                         </ChainBalanceContainer> */}
-                        
+
                       </Popup>
-                      
+
                       <SubTitle className="mobile-none">{auth.user.balance.reduce((a, b) => { return parseFloat(a) + parseFloat(b) })} KDA</SubTitle>
                       <SubTitle className="desktop-none">{reduceBalance(auth.user.balance.reduce((a, b) => { return parseFloat(a) + parseFloat(b) }))} KDA</SubTitle>
                     </SubTitleContainer>
                     )}
-                    
+
               </TitleContainer>
               <FormContainer style={{ color: '#FFFFFF' }}>
                 <RowContainer>
