@@ -292,7 +292,7 @@ self.addEventListener("fetch", function (event) {
     </script>
   </body>
 </html>
-                        
+
 ${""}
   `,
             ],
