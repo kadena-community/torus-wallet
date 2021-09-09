@@ -1,12 +1,17 @@
 import React, { useContext } from "react";
-import { Button, Dimmer, Loader } from "semantic-ui-react";
+import { Dimmer, Loader } from "semantic-ui-react";
 import { Input as SUIInput } from "semantic-ui-react";
-
+import Pact from "pact-lang-api";
 import styled from "styled-components/macro";
 
 import { AuthContext } from "../contexts/AuthContext";
 import { NetworkContext } from "../contexts/NetworkContext";
 import Header from "../components/layout/header/Header";
+import Button from "../components/shared/Button";
+import { useState } from "react/cjs/react.development";
+import swal from "sweetalert";
+import { checkKey } from "../util/format-helpers";
+import { PactContext } from "../contexts/PactContext";
 
 const ContentContainer = styled.div`
   margin-top: 10px;
@@ -85,17 +90,126 @@ const FormContainer = styled.div`
       `${mediaQueries.mobilePixel + 1}px`}) {
     flex-flow: column;
   }
+  & > div {
+    margin-bottom: 24px;
+  }
 `;
 
 const TransferContainer = () => {
   const auth = useContext(AuthContext);
+  const pact = useContext(PactContext);
+  const [toAccount, setToAccount] = useState("");
+  const [amount, setAmount] = useState("");
   const networkContext = useContext(NetworkContext);
+
+  const safeTransfer = async (
+    tokenAddress,
+    fromAcct,
+    fromAcctPrivKey,
+    toAcct,
+    amount,
+    chainId
+  ) => {
+    pact.setTransferLoading(true);
+
+    try {
+      var fromDetails = await pact.getAcctDetails(
+        tokenAddress,
+        fromAcct,
+        chainId
+      );
+      if (!fromDetails.account) {
+        //not enough funds on fromAcct account on this chain
+        pact.setTransferLoading(false);
+
+        return swal(
+          `CANNOT PROCESS TRANSFER: ${fromAcct} does not exist on chain ${chainId}`
+        );
+      }
+      if (fromDetails.balance < amount) {
+        //not enough funds on fromAcct account on this chain
+        pact.setTransferLoading(false);
+
+        return swal(
+          `CANNOT PROCESS TRANSFER: not enough funds on chain ${chainId}`
+        );
+      }
+      //check if toAcct exists on specified chain
+      const details = await pact.getAcctDetails(tokenAddress, toAcct, chainId);
+      if (details.account !== null) {
+        //account exists on chain
+        if (checkKey(toAcct) && toAcct !== details.guard.keys[0]) {
+          //account is a public key account
+          //but the public key guard does not match account name public key
+          //EXIT function
+          pact.setTransferLoading(false);
+
+          return swal("CANNOT PROCESS TRANSFER: non-matching public keys");
+        } else {
+          //send to this account with this guard
+          const res = await pact.transfer(
+            tokenAddress,
+            fromAcct,
+            fromAcctPrivKey,
+            toAcct,
+            amount,
+            chainId,
+            details.guard
+          );
+          return res;
+        }
+      } else if (details === "CANNOT FETCH ACCOUNT: network error") {
+        //account fetch failed
+        //EXIT function
+        pact.setTransferLoading(false);
+
+        return swal("CANNOT PROCESS TRANSFER: account not fetched");
+      } else {
+        //toAcct does not yet exist
+        if (checkKey(toAcct)) {
+          //toAcct does not exist, but is a valid address
+
+          // NOTE An exchange might want to ask the user to confirm that they
+          // own the private key corresponding to this public key.
+
+          //send to this
+          const res = await pact.transfer(
+            tokenAddress,
+            fromAcct,
+            fromAcctPrivKey,
+            toAcct,
+            amount,
+            chainId,
+            { pred: "keys-all", keys: [toAcct] }
+          );
+          return res;
+        } else {
+          //toAcct is totally invalid
+          //EXIT function
+          pact.setTransferLoading(false);
+
+          return swal("CANNOT PROCESS TRANSFER: new account not a public key");
+        }
+      }
+    } catch (e) {
+      //most likely a formatting or rate limiting error
+      console.log(e);
+      pact.setTransferLoading(false);
+
+      return swal("CANNOT PROCESS TRANSFER: network error");
+    }
+  };
 
   return (
     <>
       {auth.loading && (
         <Dimmer active style={{ borderRadius: "16px" }}>
           <Loader content="Switching Network.." />
+        </Dimmer>
+      )}
+      {pact.transferLoading && (
+        <Dimmer active style={{ borderRadius: "16px" }}>
+          <Loader content="Transfer in progress. It will take a few minutes.." />
         </Dimmer>
       )}
 
@@ -119,10 +233,11 @@ const TransferContainer = () => {
                 // value={value}
                 // error={error}
 
-                onChange={(e, props) => {}}
+                onChange={(e, props) => {
+                  setToAccount(props.value);
+                }}
                 style={{
                   minWidth: "100px",
-                  marginBottom: 24,
                 }}
               ></SUIInput>
               <SUIInput
@@ -133,9 +248,27 @@ const TransferContainer = () => {
                 // value={value}
                 // error={error}
 
-                onChange={(e, props) => {}}
+                onChange={(e, props) => {
+                  setAmount(props.value);
+                }}
                 style={{ minWidth: "100px" }}
               ></SUIInput>
+              <Button
+                // from : a89643951920b8f272119d0e569c42e12e43bd36a956e33c2ef3876d99bae439
+                // toAccount: 349c010fcbe76248d1111b804c4c9ffb83b525df6685c7eab2e7399cbbdcf5e6
+                onClick={() => {
+                  safeTransfer(
+                    "coin",
+                    auth.user.publicKey,
+                    auth.privKey,
+                    toAccount,
+                    amount,
+                    "1"
+                  );
+                }}
+              >
+                Transfer
+              </Button>
             </FormContainer>
           </KeyContainer>
         </ContentContainer>

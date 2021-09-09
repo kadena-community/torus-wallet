@@ -1,0 +1,70 @@
+.swal-modal {
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+  opacity: 1;
+  background: transparent
+    radial-gradient(
+      closest-side at 31% -64%,
+      #2b237c 0%,
+      #251c72 31%,
+      #0f054c 100%
+    )
+    0% 0% no-repeat padding-box;
+  color: #ffffff;
+}
+.swal-title {
+  color: #ffffff !important;
+  font: normal normal bold 32px/38px roboto-bold;
+}
+.swal-text {
+  padding: 17px;
+  display: block;
+  margin: 22px;
+  text-align: center;
+  color: #e0e0e0 !important;
+  font: normal normal bold 18px roboto-bold;
+}
+
+.swal-footer {
+  text-align: center;
+  background: transparent
+    radial-gradient(
+      closest-side at 31% -64%,
+      #2b237c 0%,
+      #251c72 31%,
+      #0f054c 100%
+    )
+    0% 0% no-repeat padding-box;
+  margin-top: 32px;
+  overflow: hidden;
+  font: normal normal bold 24px roboto-bold;
+}
+
+.swal-input {
+  border: 1px solid purple;
+}
+.swal-button {
+  cursor: pointer;
+  padding: 7px 19px;
+  background: transparent
+    radial-gradient(
+      closest-side at 31% -64%,
+      #2b237c 0%,
+      #251c72 31%,
+      #0f054c 100%
+    )
+    0% 0% no-repeat padding-box;
+  border: 1px solid #ffffff;
+  font-size: 16px;
+  color: #ffffff;
+  border-radius: 8px;
+  font: normal normal bold 24px roboto-bold;
+  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
+}
+
+.swal-button:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}

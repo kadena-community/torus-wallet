@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Button, Dimmer, Popup, Loader } from "semantic-ui-react";
+import { useHistory } from "react-router";
 import styled from "styled-components/macro";
 import { ReactComponent as KDAIcon } from "../assets/images/k_blu.svg";
 import { ReactComponent as CopyIcon } from "../assets/images/copy.svg";
@@ -10,6 +11,7 @@ import reduceToken from "../util/reduceToken";
 import { AuthContext } from "../contexts/AuthContext";
 import { NetworkContext } from "../contexts/NetworkContext";
 import Header from "../components/layout/header/Header";
+import { ROUTE_TRANSFER } from "../router/routes";
 
 const Item = styled.div`
   color: #ffffff;
@@ -204,6 +206,7 @@ const ButtonContainer = styled.div`
 `;
 
 function DashboardContainer(props) {
+  const history = useHistory();
   const auth = useContext(AuthContext);
   const networkContext = useContext(NetworkContext);
 
@@ -357,7 +360,11 @@ function DashboardContainer(props) {
                 <MyButton disabled buttonStyle={{ marginRight: "10px" }}>
                   Top up
                 </MyButton>
-                <MyButton disabled buttonStyle={{ marginLeft: "10px" }}>
+                <MyButton
+                  disabled={auth.user.balance === 0}
+                  buttonStyle={{ marginLeft: "10px" }}
+                  onClick={() => history.push(ROUTE_TRANSFER)}
+                >
                   Transfer
                 </MyButton>
               </Button.Group>

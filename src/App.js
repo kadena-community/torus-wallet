@@ -8,7 +8,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { NetworkProvider } from "./contexts/NetworkContext";
 import { PactProvider } from "./contexts/PactContext";
 import { ViewportProvider } from "./contexts/ViewportContext";
-import SwitchContainer from "./containers/SwitchContainer";
 import AppRouter from "./router/router";
 
 function App() {
