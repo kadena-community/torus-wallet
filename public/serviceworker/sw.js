@@ -224,8 +224,8 @@ self.addEventListener("fetch", function (event) {
                 },
                 error: error,
               },
-              "https://torus.chainweb.com"
-            );
+              "http://localhost:3000"
+              );
           } else {
             // communicate via broadcast channel
             bc = new broadcastChannelLib.BroadcastChannel("redirect_channel_" + instanceParams.instanceId, broadcastChannelOptions);
