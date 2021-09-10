@@ -1,19 +1,18 @@
 import React, { useContext } from "react";
-import { Dimmer, Loader } from "semantic-ui-react";
+import { Dimmer, Label, Loader, Form } from "semantic-ui-react";
 import { Input as SUIInput } from "semantic-ui-react";
-import Pact from "pact-lang-api";
 import styled from "styled-components/macro";
-
+import * as Yup from "yup";
 import { AuthContext } from "../contexts/AuthContext";
-import { NetworkContext } from "../contexts/NetworkContext";
+
 import Header from "../components/layout/header/Header";
 import Button from "../components/shared/Button";
-import { useState } from "react/cjs/react.development";
 import swal from "sweetalert";
 import { checkKey } from "../util/format-helpers";
 import { PactContext } from "../contexts/PactContext";
-
+import { useFormik } from "formik";
 const ContentContainer = styled.div`
+  width: 50%;
   margin-top: 10px;
   display: flex;
   flex-flow: column;
@@ -26,7 +25,7 @@ const ContentContainer = styled.div`
 `;
 
 const KeyContainer = styled.div`
-  margin-top: 50%;
+  margin-top: 20%;
   margin-bottom: 40px;
   display: flex;
   width: 100%;
@@ -98,9 +97,54 @@ const FormContainer = styled.div`
 const TransferContainer = () => {
   const auth = useContext(AuthContext);
   const pact = useContext(PactContext);
-  const [toAccount, setToAccount] = useState("");
-  const [amount, setAmount] = useState("");
-  const networkContext = useContext(NetworkContext);
+
+  const validationSchema = Yup.object().shape({
+    toAccount: Yup.string().required("Insert Receiver account"),
+    amount: Yup.number()
+      .typeError("Amount must be a decimal number")
+      .required("Insert amount"),
+  });
+
+  const {
+    values,
+    errors,
+    touched,
+    setFieldValue,
+    handleBlur,
+    handleChange,
+    handleReset,
+    handleSubmit,
+  } = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      toAccount: "",
+      amount: "",
+    },
+    validationSchema,
+    onSubmit: (values, { setSubmitting }) => {
+      auth.loginForTransfer().then((result) => {
+        let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
+
+        if (pubKeyByNewLogAcct === auth.user.publicKey) {
+          safeTransfer(
+            "coin",
+            auth.user.publicKey,
+            result,
+            values.toAccount,
+            values.amount,
+            "1"
+          );
+        } else {
+          return swal(
+            `CANNOT PROCESS TRANSFER:`,
+            `The login account and confirmation account must be the same`
+          );
+        }
+      });
+      // from : a89643951920b8f272119d0e569c42e12e43bd36a956e33c2ef3876d99bae439
+      // toAccount: 349c010fcbe76248d1111b804c4c9ffb83b525df6685c7eab2e7399cbbdcf5e6
+    },
+  });
 
   const safeTransfer = async (
     tokenAddress,
@@ -182,6 +226,7 @@ const TransferContainer = () => {
             chainId,
             { pred: "keys-all", keys: [toAcct] }
           );
+          handleReset();
           return res;
         } else {
           //toAcct is totally invalid
@@ -225,50 +270,49 @@ const TransferContainer = () => {
               style={{ color: "#FFFFFF", flexFlow: "column" }}
               id="tranfer"
             >
-              <SUIInput
-                label="Receiver"
-                placeholder="Insert Public Key"
-                // size={size}
-                // disabled={disabled}
-                // value={value}
-                // error={error}
-
-                onChange={(e, props) => {
-                  setToAccount(props.value);
-                }}
-                style={{
-                  minWidth: "100px",
-                }}
-              ></SUIInput>
-              <SUIInput
-                label="Amount"
-                placeholder="Insert Amount"
-                // size={size}
-                // disabled={disabled}
-                // value={value}
-                // error={error}
-
-                onChange={(e, props) => {
-                  setAmount(props.value);
-                }}
-                style={{ minWidth: "100px" }}
-              ></SUIInput>
-              <Button
-                // from : a89643951920b8f272119d0e569c42e12e43bd36a956e33c2ef3876d99bae439
-                // toAccount: 349c010fcbe76248d1111b804c4c9ffb83b525df6685c7eab2e7399cbbdcf5e6
-                onClick={() => {
-                  safeTransfer(
-                    "coin",
-                    auth.user.publicKey,
-                    auth.privKey,
-                    toAccount,
-                    amount,
-                    "1"
-                  );
-                }}
-              >
-                Transfer
-              </Button>
+              <Form>
+                <Form.Field>
+                  <SUIInput
+                    name="toAccount"
+                    id="toAccount"
+                    label="Receiver"
+                    placeholder="Insert Public Key"
+                    size="big"
+                    // disabled={disabled}
+                    value={values.toAccount}
+                    onChange={handleChange}
+                    error={touched.toAccount && !!errors.toAccount}
+                  ></SUIInput>
+                  {touched.toAccount && !!errors.toAccount ? (
+                    <Label basic color="red" pointing>
+                      {touched.toAccount && errors.toAccount}
+                    </Label>
+                  ) : (
+                    <></>
+                  )}
+                </Form.Field>
+                <Form.Field>
+                  <SUIInput
+                    name="amount"
+                    id="amount"
+                    label="Amount"
+                    placeholder="Insert Amount"
+                    size="big"
+                    // disabled={disabled}
+                    value={values.amount}
+                    onChange={handleChange}
+                    error={touched.amount && !!errors.amount}
+                  ></SUIInput>
+                  {touched.amount && !!errors.amount ? (
+                    <Label basic color="red" pointing>
+                      {touched.amount && errors.amount}
+                    </Label>
+                  ) : (
+                    <></>
+                  )}
+                </Form.Field>
+                <Button onClick={handleSubmit}>Transfer</Button>
+              </Form>
             </FormContainer>
           </KeyContainer>
         </ContentContainer>

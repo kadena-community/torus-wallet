@@ -134,7 +134,6 @@ export const PactProvider = (props) => {
     chainId,
     guard
   ) => {
-    debugger;
     try {
       const fromAcctPubKey = getPubFromPriv(fromAcctPrivKey);
       const res = await Pact.fetch.send(
@@ -205,6 +204,7 @@ export const PactProvider = (props) => {
       value={{
         transferLoading,
         setTransferLoading,
+        getPubFromPriv,
         getBalance,
         transfer,
         getAcctDetails,
