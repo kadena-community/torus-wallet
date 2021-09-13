@@ -1,16 +1,22 @@
 import React, { useContext } from "react";
-import { Dimmer, Label, Loader, Form } from "semantic-ui-react";
+import { Dimmer, Loader, Dropdown } from "semantic-ui-react";
 import { Input as SUIInput } from "semantic-ui-react";
 import styled from "styled-components/macro";
 import * as Yup from "yup";
+import { useFormik } from "formik";
+import swal from "sweetalert";
 import { AuthContext } from "../contexts/AuthContext";
+import { PactContext } from "../contexts/PactContext";
+import { ViewportContext } from "../contexts/ViewportContext";
 
 import Header from "../components/layout/header/Header";
 import Button from "../components/shared/Button";
-import swal from "sweetalert";
+import InputWithLabel from "../components/shared/InputWithLabel";
+
 import { checkKey } from "../util/format-helpers";
-import { PactContext } from "../contexts/PactContext";
-import { useFormik } from "formik";
+import { reduceBalance } from "../util/reduceBalance";
+import { chainList } from "../constants/chainList";
+
 const ContentContainer = styled.div`
   width: 50%;
   margin-top: 10px;
@@ -19,7 +25,15 @@ const ContentContainer = styled.div`
   align: center;
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    margin-top: 40px !important;
+    width: 90%;
+    margin-right: -10px;
+  }
+
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
+    width: 90%;
     margin-top: 30px;
   }
 `;
@@ -97,12 +111,17 @@ const FormContainer = styled.div`
 const TransferContainer = () => {
   const auth = useContext(AuthContext);
   const pact = useContext(PactContext);
+  const viewport = useContext(ViewportContext);
 
   const validationSchema = Yup.object().shape({
-    toAccount: Yup.string().required("Insert Receiver account"),
+    toAccount: Yup.string()
+      .required("Insert Receiver account")
+      .min(3, "Receiver must be at least 3 characters"),
     amount: Yup.number()
       .typeError("Amount must be a decimal number")
       .required("Insert amount"),
+    senderChain: Yup.string().required("Select Sender Chain"),
+    receiverChain: Yup.string().required("Select Receiver Chain"),
   });
 
   const {
@@ -110,7 +129,6 @@ const TransferContainer = () => {
     errors,
     touched,
     setFieldValue,
-    handleBlur,
     handleChange,
     handleReset,
     handleSubmit,
@@ -119,28 +137,45 @@ const TransferContainer = () => {
     initialValues: {
       toAccount: "",
       amount: "",
+      senderChain: 0,
+      receiverChain: 0,
     },
     validationSchema,
     onSubmit: (values, { setSubmitting }) => {
-      auth.loginForTransfer().then((result) => {
-        let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
-
-        if (pubKeyByNewLogAcct === auth.user.publicKey) {
-          safeTransfer(
-            "coin",
-            auth.user.publicKey,
-            result,
-            values.toAccount,
-            values.amount,
-            "1"
-          );
-        } else {
-          return swal(
-            `CANNOT PROCESS TRANSFER:`,
-            `The login account and confirmation account must be the same`
-          );
-        }
-      });
+      auth
+        .loginForTransfer()
+        .then((result) => {
+          let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
+          if (values.senderChain === values.receiverChain) {
+            if (pubKeyByNewLogAcct === auth.user.publicKey) {
+              console.log(
+                `Chain ${
+                  values.senderChain
+                } and type ${typeof values.senderChain}`
+              );
+              safeTransfer(
+                "coin",
+                auth.user.publicKey,
+                result,
+                values.toAccount,
+                values.amount,
+                `${values.senderChain}`
+              );
+            } else {
+              return swal(
+                `CANNOT PROCESS TRANSFER:`,
+                `The login account and confirmation account must be the same`
+              );
+            }
+          } else {
+            // TEMPORANY VALIDATION
+            return swal(
+              `CANNOT PROCESS TRANSFER:`,
+              `The SENDER account and RECEIVER account must have the same chain`
+            );
+          }
+        })
+        .catch((e) => console.log(e));
       // from : a89643951920b8f272119d0e569c42e12e43bd36a956e33c2ef3876d99bae439
       // toAccount: 349c010fcbe76248d1111b804c4c9ffb83b525df6685c7eab2e7399cbbdcf5e6
     },
@@ -270,49 +305,117 @@ const TransferContainer = () => {
               style={{ color: "#FFFFFF", flexFlow: "column" }}
               id="tranfer"
             >
-              <Form>
-                <Form.Field>
-                  <SUIInput
-                    name="toAccount"
-                    id="toAccount"
-                    label="Receiver"
-                    placeholder="Insert Public Key"
-                    size="big"
-                    // disabled={disabled}
-                    value={values.toAccount}
-                    onChange={handleChange}
-                    error={touched.toAccount && !!errors.toAccount}
-                  ></SUIInput>
-                  {touched.toAccount && !!errors.toAccount ? (
-                    <Label basic color="red" pointing>
-                      {touched.toAccount && errors.toAccount}
-                    </Label>
-                  ) : (
-                    <></>
-                  )}
-                </Form.Field>
-                <Form.Field>
-                  <SUIInput
-                    name="amount"
-                    id="amount"
-                    label="Amount"
-                    placeholder="Insert Amount"
-                    size="big"
-                    // disabled={disabled}
-                    value={values.amount}
-                    onChange={handleChange}
-                    error={touched.amount && !!errors.amount}
-                  ></SUIInput>
-                  {touched.amount && !!errors.amount ? (
-                    <Label basic color="red" pointing>
-                      {touched.amount && errors.amount}
-                    </Label>
-                  ) : (
-                    <></>
-                  )}
-                </Form.Field>
-                <Button onClick={handleSubmit}>Transfer</Button>
-              </Form>
+              <InputWithLabel
+                label="Sender Chain"
+                error={touched.senderChain && errors.senderChain}
+              >
+                <Dropdown
+                  fluid
+                  selection
+                  name="senderChain"
+                  id="senderChain"
+                  placeholder="Chain"
+                  style={{ fontFamily: "roboto-bold", fontSize: 18 }}
+                  options={
+                    !auth.loading &&
+                    auth.user.balance.map((bal, index) => ({
+                      key: index,
+                      text: `Chain ${index} - ${reduceBalance(bal)} KDA`,
+                      value: index,
+                    }))
+                  }
+                  onChange={(e, value) => {
+                    setFieldValue("senderChain", value.value);
+                  }}
+                  value={values.senderChain}
+                />
+              </InputWithLabel>
+              <InputWithLabel
+                label="Receiver"
+                error={touched.toAccount && errors.toAccount}
+              >
+                <SUIInput
+                  fluid
+                  name="toAccount"
+                  id="toAccount"
+                  label={
+                    !viewport.isMobile ? (
+                      <Dropdown
+                        style={{
+                          fontFamily: "roboto-bold",
+                          fontSize: 18,
+                          minWidth: "7.5em",
+                        }}
+                        selection
+                        name="receiverChain"
+                        id="receiverChain"
+                        placeholder="Chain"
+                        options={
+                          // REPLACE WITH A GENERIC LIST CHAIN OBJECT
+                          !auth.loading &&
+                          auth.user.balance.map((bal, index) => ({
+                            key: index,
+                            text: `Chain ${index}`,
+                            value: index,
+                          }))
+                        }
+                        onChange={(e, value) => {
+                          setFieldValue("receiverChain", value.value);
+                        }}
+                        value={values.receiverChain}
+                      />
+                    ) : (
+                      <Dropdown
+                        style={{
+                          fontFamily: "roboto-bold",
+                          fontSize: 18,
+                          minWidth: "2.5em",
+                        }}
+                        selection
+                        name="receiverChain"
+                        id="receiverChain"
+                        placeholder="Chain"
+                        options={
+                          !auth.loading &&
+                          Object.values(chainList).map((chain) => ({
+                            key: chain,
+                            text: `Chain ${chain}`,
+                            value: chain,
+                          }))
+                        }
+                        onChange={(e, value) => {
+                          setFieldValue("receiverChain", value.value);
+                        }}
+                        value={values.receiverChain}
+                      />
+                    )
+                  }
+                  labelPosition="right"
+                  placeholder="Insert Public Key"
+                  size="big"
+                  // disabled={disabled}
+                  value={values.toAccount}
+                  onChange={handleChange}
+                  error={touched.toAccount && !!errors.toAccount}
+                ></SUIInput>
+              </InputWithLabel>
+              <InputWithLabel
+                label="Amount"
+                error={touched.amount && errors.amount}
+              >
+                <SUIInput
+                  fluid
+                  name="amount"
+                  id="amount"
+                  placeholder="Insert Amount"
+                  size="big"
+                  // disabled={disabled}
+                  value={values.amount}
+                  onChange={handleChange}
+                  error={touched.amount && !!errors.amount}
+                ></SUIInput>
+              </InputWithLabel>
+              <Button onClick={handleSubmit}>Transfer</Button>
             </FormContainer>
           </KeyContainer>
         </ContentContainer>

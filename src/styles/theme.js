@@ -11,6 +11,7 @@ export const theme = {
     mobileBreakpoint: "48rem",
     mobilePixel: 768,
     desktopPixel: 1024,
+    mobileSmallPixel: 320,
     footerMinWidth: "50rem",
   },
   colors: {

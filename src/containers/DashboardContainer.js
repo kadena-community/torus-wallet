@@ -275,7 +275,7 @@ function DashboardContainer(props) {
                   basic
                   trigger={
                     <SubTitle>
-                      Total{" "}
+                      Total
                       <DropdownIcon
                         style={{ marginLeft: "10px", marginBottom: "4px" }}
                       />
