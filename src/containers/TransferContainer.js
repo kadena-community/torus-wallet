@@ -168,10 +168,13 @@ const TransferContainer = () => {
               );
             }
           } else {
-            // TEMPORANY VALIDATION
-            return swal(
-              `CANNOT PROCESS TRANSFER:`,
-              `The SENDER account and RECEIVER account must have the same chain`
+            safeTransferCrossChain(
+              "coin",
+              auth.user.publicKey,
+              result,
+              values.toAccount,
+              values.amount,
+              `${values.receiverChain}`
             );
           }
         })
@@ -280,6 +283,117 @@ const TransferContainer = () => {
     }
   };
 
+  const safeTransferCrossChain = async (
+    tokenAddress,
+    fromAcct,
+    fromAcctPrivKey,
+    toAcct,
+    amount,
+    targetChainId
+  ) => {
+    // OR add A Notification!
+    pact.setTransferLoading(true);
+
+    try {
+      var ownDetails = await pact.getAcctDetails(
+        tokenAddress,
+        fromAcct,
+        targetChainId
+      );
+      if (ownDetails.balance < amount) {
+        //not enough funds on PUB_KEY account on this chain
+        //wait for funds to be transferred from own account on other chains
+        const fundedXChain = await pact.balanceFunds(
+          tokenAddress,
+          fromAcct,
+          fromAcctPrivKey,
+          amount,
+          ownDetails.balance,
+          targetChainId
+        );
+        if (fundedXChain !== "BALANCE FUNDS SUCCESS") {
+          //was not able to move funds across different chains
+          pact.setTransferLoading(true);
+
+          return swal(
+            `CANNOT PROCESS TRANSFER:`,
+            `Not enough funds on chain ${targetChainId}`
+          );
+        }
+      }
+      //check if toAcct exists on specified chain
+      const details = await pact.getAcctDetails(
+        tokenAddress,
+        toAcct,
+        targetChainId
+      );
+      if (details.account !== null) {
+        //account exists on chain
+        if (checkKey(toAcct) && toAcct !== details.guard.keys[0]) {
+          //account is a public key account
+          //but the public key guard does not match account name public key
+          //EXIT function
+          pact.setTransferLoading(true);
+
+          return swal("CANNOT PROCESS TRANSFER:", "Non-matching public keys");
+        } else {
+          //send to this account with this guard
+          const res = await pact.transfer(
+            tokenAddress,
+            fromAcct,
+            fromAcctPrivKey,
+            toAcct,
+            amount,
+            targetChainId,
+            details.guard
+          );
+          return res;
+        }
+      } else if (details === "CANNOT FETCH ACCOUNT: network error") {
+        //account fetch failed
+        //EXIT function
+        pact.setTransferLoading(true);
+
+        return swal("CANNOT PROCESS TRANSFER:", "Account not fetched");
+      } else {
+        //toAcct does not yet exist
+        if (checkKey(toAcct)) {
+          //toAcct does not exist, but is a valid address
+
+          // NOTE An exchange might want to ask the user to confirm that they
+          // own the private key corresponding to this public key.
+
+          //send to this
+          const res = await pact.transfer(
+            tokenAddress,
+            fromAcct,
+            fromAcctPrivKey,
+            toAcct,
+            amount,
+            targetChainId,
+            { pred: "keys-all", keys: [toAcct] }
+          );
+          return res;
+        } else {
+          //toAcct is totally invalid
+          //EXIT function
+          pact.setTransferLoading(true);
+
+          return swal(
+            "CANNOT PROCESS TRANSFER:",
+            "New account not a public key"
+          );
+        }
+      }
+    } catch (e) {
+      //most likely a formatting or rate limiting error
+      pact.setTransferLoading(true);
+
+      console.log(e);
+      return swal("CANNOT PROCESS TRANSFER:", "Network error");
+    }
+  };
+
   return (
     <>
       {auth.loading && (
@@ -351,12 +465,11 @@ const TransferContainer = () => {
                         id="receiverChain"
                         placeholder="Chain"
                         options={
-                          // REPLACE WITH A GENERIC LIST CHAIN OBJECT
                           !auth.loading &&
-                          auth.user.balance.map((bal, index) => ({
-                            key: index,
-                            text: `Chain ${index}`,
-                            value: index,
+                          Object.values(chainList).map((chain) => ({
+                            key: chain,
+                            text: `Chain ${chain}`,
+                            value: chain,
                           }))
                         }
                         onChange={(e, value) => {

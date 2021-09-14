@@ -28,7 +28,6 @@ const transfer = async (
   chainId,
   guard
 ) => {
-  debugger;
   try {
     const fromAcctPubKey = getPubFromPriv(fromAcctPrivKey);
     const res = await Pact.fetch.send(
