@@ -22,6 +22,8 @@ export const AuthProvider = (props) => {
   const networkContext = useContext(NetworkContext);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [connectingLoading, setConnectingLoading] = useState(false);
+
   const [totalBalance, setTotalBalance] = useState(0);
   const torus = useContext(TorusContext);
 
@@ -36,6 +38,16 @@ export const AuthProvider = (props) => {
     }
     getBalanceWrapper();
   }, [networkContext.network]);
+
+  useEffect(() => {
+    async function getBalanceWrapper() {
+      if (user?.publicKey) {
+        const balance = await pact.getBalance("coin", user.publicKey);
+        setUser({ ...user, balance: balance });
+      }
+    }
+    getBalanceWrapper();
+  }, [pact.transferLoading]);
 
   const login = async () => {
     setLoading(true);
@@ -64,7 +76,7 @@ export const AuthProvider = (props) => {
   };
 
   const loginForTransfer = async () => {
-    setLoading(true);
+    setConnectingLoading(true);
     try {
       const { typeOfLogin, clientId, verifier } = verifierMap[GOOGLE];
       const loginDetails = await torus.torusdirectsdk.triggerLogin({
@@ -76,7 +88,7 @@ export const AuthProvider = (props) => {
     } catch (error) {
       console.error(error, "login caught");
     } finally {
-      setLoading(false);
+      setConnectingLoading(false);
     }
   };
 
@@ -89,6 +101,7 @@ export const AuthProvider = (props) => {
       value={{
         user,
         loading,
+        connectingLoading,
         login,
         logout,
         totalBalance,

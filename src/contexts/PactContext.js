@@ -300,8 +300,6 @@ export const PactProvider = (props) => {
         const mintReqKey = mint.requestKeys[0];
         const mintPollRes = await pollTxRes(mintReqKey, host(toChain));
         if (mintPollRes.result.status === "success") {
-          setTransferLoading(false);
-
           return swal(
             `CROSS-CHAIN TRANSFER SUCCESS:`,
             `${amount} ${tokenAddress} transfered from chain ${fromChain} to ${toChain} for account ${account}`
@@ -329,7 +327,7 @@ export const PactProvider = (props) => {
       setTransferLoading(false);
 
       console.log(e);
-      return swal("CANNOT PROCESS CROSS-CHAIN TRANSFER:", "Network error");
+      return "CANNOT PROCESS CROSS-CHAIN TRANSFER: Network error";
     }
   };
 
@@ -363,10 +361,6 @@ export const PactProvider = (props) => {
         var halfBal = sorted[i][1] / 2;
         transfers.push([sorted[i][0], halfBal]);
         total = total + halfBal;
-        // STUDY THIS!
-        // console.log(
-        //   `halfBal: ${halfBal}, transfers: ${transfers}, total: ${total}`
-        // );
         if (total > amountNeeded) break;
       }
       for (let i = 0; i < transfers.length; i++) {

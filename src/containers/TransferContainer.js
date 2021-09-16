@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Dimmer, Loader, Dropdown } from "semantic-ui-react";
 import { Input as SUIInput } from "semantic-ui-react";
 import styled from "styled-components/macro";
@@ -137,7 +137,7 @@ const TransferContainer = () => {
     initialValues: {
       toAccount: "",
       amount: "",
-      senderChain: 0,
+      senderChain: "ANY",
       receiverChain: 0,
     },
     validationSchema,
@@ -146,20 +146,18 @@ const TransferContainer = () => {
         .loginForTransfer()
         .then((result) => {
           let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
-          if (values.senderChain === values.receiverChain) {
-            if (pubKeyByNewLogAcct === auth.user.publicKey) {
-              console.log(
-                `Chain ${
-                  values.senderChain
-                } and type ${typeof values.senderChain}`
-              );
+          if (values.senderChain !== "ANY") {
+            if (
+              pubKeyByNewLogAcct === auth.user.publicKey &&
+              values.senderChain === values.receiverChain
+            ) {
               safeTransfer(
                 "coin",
                 auth.user.publicKey,
                 result,
                 values.toAccount,
                 values.amount,
-                `${values.senderChain}`
+                `${values.receiverChain}`
               );
             } else {
               return swal(
@@ -183,6 +181,11 @@ const TransferContainer = () => {
       // toAccount: 349c010fcbe76248d1111b804c4c9ffb83b525df6685c7eab2e7399cbbdcf5e6
     },
   });
+
+  useEffect(() => {
+    if (values.senderChain !== "ANY")
+      setFieldValue("receiverChain", values.senderChain);
+  }, [values.senderChain]);
 
   const safeTransfer = async (
     tokenAddress,
@@ -226,7 +229,7 @@ const TransferContainer = () => {
           //EXIT function
           pact.setTransferLoading(false);
 
-          return swal("CANNOT PROCESS TRANSFER: non-matching public keys");
+          return swal(" non-matching public keys");
         } else {
           //send to this account with this guard
           const res = await pact.transfer(
@@ -293,7 +296,6 @@ const TransferContainer = () => {
   ) => {
     // OR add A Notification!
     pact.setTransferLoading(true);
-
     try {
       var ownDetails = await pact.getAcctDetails(
         tokenAddress,
@@ -313,7 +315,7 @@ const TransferContainer = () => {
         );
         if (fundedXChain !== "BALANCE FUNDS SUCCESS") {
           //was not able to move funds across different chains
-          pact.setTransferLoading(true);
+          pact.setTransferLoading(false);
 
           return swal(
             `CANNOT PROCESS TRANSFER:`,
@@ -327,13 +329,14 @@ const TransferContainer = () => {
         toAcct,
         targetChainId
       );
+
       if (details.account !== null) {
         //account exists on chain
         if (checkKey(toAcct) && toAcct !== details.guard.keys[0]) {
           //account is a public key account
           //but the public key guard does not match account name public key
           //EXIT function
-          pact.setTransferLoading(true);
+          pact.setTransferLoading(false);
 
           return swal("CANNOT PROCESS TRANSFER:", "Non-matching public keys");
         } else {
@@ -352,7 +355,7 @@ const TransferContainer = () => {
       } else if (details === "CANNOT FETCH ACCOUNT: network error") {
         //account fetch failed
         //EXIT function
-        pact.setTransferLoading(true);
+        pact.setTransferLoading(false);
 
         return swal("CANNOT PROCESS TRANSFER:", "Account not fetched");
       } else {
@@ -377,7 +380,7 @@ const TransferContainer = () => {
         } else {
           //toAcct is totally invalid
           //EXIT function
-          pact.setTransferLoading(true);
+          pact.setTransferLoading(false);
 
           return swal(
             "CANNOT PROCESS TRANSFER:",
@@ -387,10 +390,30 @@ const TransferContainer = () => {
       }
     } catch (e) {
       //most likely a formatting or rate limiting error
-      pact.setTransferLoading(true);
+      pact.setTransferLoading(false);
 
       console.log(e);
       return swal("CANNOT PROCESS TRANSFER:", "Network error");
+    }
+  };
+
+  const getSenderChainOptions = () => {
+    if (!auth.loading) {
+      const optUser = auth.user.balance.map((bal, index) => ({
+        key: index,
+        text: `Chain ${index} - ${reduceBalance(bal)} KDA`,
+        value: index,
+      }));
+      optUser.unshift({
+        key: "any",
+        text: `Any Chain - ${reduceBalance(
+          auth.user.balance.reduce((a, b) => {
+            return parseFloat(a) + parseFloat(b);
+          })
+        )}  KDA`,
+        value: "ANY",
+      });
+      return optUser;
     }
   };
 
@@ -404,6 +427,11 @@ const TransferContainer = () => {
       {pact.transferLoading && (
         <Dimmer active style={{ borderRadius: "16px" }}>
           <Loader content="Transfer in progress. It will take a few minutes.." />
+        </Dimmer>
+      )}
+      {auth.connectingLoading && (
+        <Dimmer active style={{ borderRadius: "16px" }}>
+          <Loader content="Connecting.." />
         </Dimmer>
       )}
 
@@ -430,14 +458,7 @@ const TransferContainer = () => {
                   id="senderChain"
                   placeholder="Chain"
                   style={{ fontFamily: "roboto-bold", fontSize: 18 }}
-                  options={
-                    !auth.loading &&
-                    auth.user.balance.map((bal, index) => ({
-                      key: index,
-                      text: `Chain ${index} - ${reduceBalance(bal)} KDA`,
-                      value: index,
-                    }))
-                  }
+                  options={getSenderChainOptions()}
                   onChange={(e, value) => {
                     setFieldValue("senderChain", value.value);
                   }}
@@ -472,6 +493,7 @@ const TransferContainer = () => {
                             value: chain,
                           }))
                         }
+                        disabled={values.senderChain !== "ANY"}
                         onChange={(e, value) => {
                           setFieldValue("receiverChain", value.value);
                         }}
@@ -496,6 +518,7 @@ const TransferContainer = () => {
                             value: chain,
                           }))
                         }
+                        disabled={values.senderChain !== "ANY"}
                         onChange={(e, value) => {
                           setFieldValue("receiverChain", value.value);
                         }}
