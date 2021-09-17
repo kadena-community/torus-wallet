@@ -9,6 +9,7 @@ import { NetworkProvider } from "./contexts/NetworkContext";
 import { PactProvider } from "./contexts/PactContext";
 import { ViewportProvider } from "./contexts/ViewportContext";
 import AppRouter from "./router/router";
+import { ChainwebProvider } from "./contexts/ChainwebContext";
 
 function App() {
   return (
@@ -16,12 +17,14 @@ function App() {
       <NetworkProvider>
         <PactProvider>
           <AuthProvider>
-            <ViewportProvider>
-              <ThemeProvider theme={theme}>
-                <GlobalStyle />
-                <AppRouter />
-              </ThemeProvider>
-            </ViewportProvider>
+            <ChainwebProvider>
+              <ViewportProvider>
+                <ThemeProvider theme={theme}>
+                  <GlobalStyle />
+                  <AppRouter />
+                </ThemeProvider>
+              </ViewportProvider>
+            </ChainwebProvider>
           </AuthProvider>
         </PactProvider>
       </NetworkProvider>

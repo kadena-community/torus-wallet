@@ -9,8 +9,14 @@ import styled from "styled-components/macro";
 import { AuthContext } from "../contexts/AuthContext";
 import DashboardContainer from "../containers/DashboardContainer";
 import LoginContainer from "../containers/LoginContainer";
-import { ROUTE_DASHBOARD, ROUTE_LOGIN, ROUTE_TRANSFER } from "./routes";
+import {
+  ROUTE_DASHBOARD,
+  ROUTE_HISTORY,
+  ROUTE_LOGIN,
+  ROUTE_TRANSFER,
+} from "./routes";
 import TransferContainer from "../containers/TransferContainer";
+import HistoryContainer from "../containers/HistoryContainer";
 
 const MainContainer = styled.div`
   display: flex;
@@ -36,6 +42,7 @@ const AppRouter = () => {
               component={DashboardContainer}
             />
             <Route exact path={ROUTE_TRANSFER} component={TransferContainer} />
+            <Route exact path={ROUTE_HISTORY} component={HistoryContainer} />
           </Switch>
         ) : (
           <Switch>

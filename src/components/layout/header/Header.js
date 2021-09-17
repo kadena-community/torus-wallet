@@ -6,7 +6,11 @@ import { MAINNET, TESTNET } from "../../../contexts/NetworkContext";
 import { ReactComponent as DropdownIcon } from "../../../assets/images/dropdown_icon.svg";
 import { ReactComponent as HamburgerIcon } from "../../../assets/images/hamburger.svg";
 import ToggleSwitchButton from "../../shared/ToogleSwitchButton";
-import { ROUTE_DASHBOARD, ROUTE_TRANSFER } from "../../../router/routes";
+import {
+  ROUTE_DASHBOARD,
+  ROUTE_HISTORY,
+  ROUTE_TRANSFER,
+} from "../../../router/routes";
 import { useHistory } from "react-router";
 
 const HeaderContainer = styled.div`
@@ -123,6 +127,14 @@ const Header = () => {
           }}
         >
           Transfer
+        </Item>
+        <Item
+          className="mobile-none"
+          onClick={() => {
+            history.push(ROUTE_HISTORY);
+          }}
+        >
+          History
         </Item>
       </LeftContainer>
       <RightContainer>
