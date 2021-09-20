@@ -7,7 +7,7 @@ import { ReactComponent as CopyIcon } from "../assets/images/copy.svg";
 import { ReactComponent as DropdownIcon } from "../assets/images/dropdown_icon.svg";
 import MyButton from "../components/shared/Button";
 import { reduceBalance } from "../util/reduceBalance";
-import reduceToken from "../util/reduceToken";
+import { reduceToken } from "../util/reduceToken";
 import { AuthContext } from "../contexts/AuthContext";
 import { NetworkContext } from "../contexts/NetworkContext";
 import Header from "../components/layout/header/Header";

@@ -11,6 +11,7 @@ export const PactProvider = (props) => {
   const networkContext = useContext(NetworkContext);
   const authContext = useContext(AuthContext);
   const [transferLoading, setTransferLoading] = useState(false);
+  const [txList, setTxList] = useState({});
   const [account, setAccount] = useState({
     account: null,
     guard: null,
@@ -24,6 +25,11 @@ export const PactProvider = (props) => {
   const host = (chainId) =>
     `https://${networkContext.network.kadenaServer}/chainweb/0.0/${networkContext.network.networkID}/chain/${chainId}/pact`;
 
+  const setReqKeysLocalStorage = (key) => {
+    const reqKeysTx = JSON.parse(localStorage.getItem("reqKeys"));
+    reqKeysTx.push(key);
+    localStorage.setItem(`reqKeys`, JSON.stringify(reqKeysTx));
+  };
   const getAcctDetails = async (tokenAddress, acct, chainId) => {
     try {
       //this function only READS from the blockchain
@@ -52,8 +58,9 @@ export const PactProvider = (props) => {
       }
     } catch (e) {
       //most likely a formatting or rate limiting error
+
       console.log(e);
-      return swal("CANNOT FETCH ACCOUNT: network error");
+      return "CANNOT FETCH ACCOUNT: network error";
     }
   };
 
@@ -86,6 +93,33 @@ export const PactProvider = (props) => {
     return new Promise((resolve) => {
       setTimeout(resolve, timeout);
     });
+  };
+
+  const wait = async (timeout) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, timeout);
+    });
+  };
+
+  const getTransferList = async (chainId) => {
+    setTxList({});
+    // var time = 240;
+    // var pollRes = [];
+    // while (time > 0) {
+    // await wait(5000);
+    var reqKeyList = JSON.parse(localStorage.getItem("reqKeys"));
+    let tx = await Pact.fetch.poll(
+      { requestKeys: Object.values(reqKeyList) },
+      host(`${chainId}`)
+    );
+    if (Object.keys(tx).length !== 0) {
+      setTxList(tx);
+    } else {
+      setTxList("NO_TX_FOUND");
+    }
+    // Object.values(reqKeyList).map(async (reqKey) => {
+
+    // });
   };
 
   const pollTxRes = async (reqKey, host) => {
@@ -201,6 +235,7 @@ export const PactProvider = (props) => {
       const pollRes = await pollTxRes(reqKey, host(chainId));
       if (pollRes.result.status === "success") {
         setTransferLoading(false);
+        setReqKeysLocalStorage(reqKey);
         return swal(
           `TRANSFER SUCCESS:`,
           ` from ${fromAcct} to ${toAcct} for ${amount} ${tokenAddress} on chain ${chainId}`
@@ -300,6 +335,8 @@ export const PactProvider = (props) => {
         const mintReqKey = mint.requestKeys[0];
         const mintPollRes = await pollTxRes(mintReqKey, host(toChain));
         if (mintPollRes.result.status === "success") {
+          setReqKeysLocalStorage(mintReqKey);
+
           return swal(
             `CROSS-CHAIN TRANSFER SUCCESS:`,
             `${amount} ${tokenAddress} transfered from chain ${fromChain} to ${toChain} for account ${account}`
@@ -386,6 +423,7 @@ export const PactProvider = (props) => {
   return (
     <PactContext.Provider
       value={{
+        txList,
         transferLoading,
         setTransferLoading,
         getPubFromPriv,
@@ -393,6 +431,7 @@ export const PactProvider = (props) => {
         balanceFunds,
         transfer,
         getAcctDetails,
+        getTransferList,
       }}
     >
       {props.children}

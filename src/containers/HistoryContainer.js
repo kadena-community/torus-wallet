@@ -1,12 +1,15 @@
-import React, { useEffect } from "react";
-import { useContext, useState } from "react/cjs/react.development";
-import { Dimmer, Grid, Loader } from "semantic-ui-react";
+import React, { useEffect, useState } from "react";
+import Pact from "pact-lang-api";
+import { useContext } from "react/cjs/react.development";
+import { Button, Dimmer, Dropdown, Grid, Loader } from "semantic-ui-react";
 import styled from "styled-components";
 import { AuthContext } from "../contexts/AuthContext";
 
 import Header from "../components/layout/header/Header";
-import { ChainwebContext, ChainweContext } from "../contexts/ChainwebContext";
 import { PactContext } from "../contexts/PactContext";
+import { chainList } from "../constants/chainList";
+import { reduceToken, reduceTokenMobile } from "../util/reduceToken";
+import { NetworkContext } from "../contexts/NetworkContext";
 
 const MainContainer = styled.div`
   display: flex;
@@ -58,6 +61,11 @@ const ContentContainer = styled.div`
   ::-webkit-scrollbar {
     display: block;
   }
+
+  .textBold {
+    font-family: roboto-bold;
+    font-size: 18px;
+  }
 `;
 
 export const PartialScrollableScrollSection = styled.div`
@@ -89,24 +97,15 @@ const Title = styled.span`
 
 const HistoryContainer = () => {
   const auth = useContext(AuthContext);
-  const chainwebContext = useContext(ChainwebContext);
   const pact = useContext(PactContext);
-  const [historyLoading, setHistoryLoading] = useState(true);
+  const { network } = useContext(NetworkContext);
+
+  const [selectedChain, setSelectedChain] = useState(0);
 
   useEffect(() => {
-    if (auth?.user?.publicKey) {
-      chainwebContext.setChainEvents([]);
-      chainwebContext.getEvents();
-    }
-  }, [pact.transferLoading, auth.loading]);
+    pact.getTransferList(selectedChain);
+  }, [selectedChain]);
 
-  //   useEffect(() => {
-  //     if (auth?.user?.publicKey && chainwebContext.chainEvents.length < 20) {
-  //       setHistoryLoading(true);
-  //     } else {
-  //       setHistoryLoading(false);
-  //     }
-  //   }, [chainwebContext.chainEvents.length]);
   return (
     <>
       {auth.loading && (
@@ -114,13 +113,6 @@ const HistoryContainer = () => {
           <Loader content="Switching Network.." />
         </Dimmer>
       )}
-      {/* {historyLoading && (
-        <Dimmer active style={{ borderRadius: "16px" }}>
-          <Loader
-            content={`Updating history wallet transfer - chain: ${chainwebContext.chainEvents.length}`}
-          />
-        </Dimmer>
-      )} */}
       <MainContainer>
         <Header />
         <Container>
@@ -128,48 +120,64 @@ const HistoryContainer = () => {
             <TitleContainer>
               <Title>History Wallet</Title>
             </TitleContainer>
-            <Grid style={{ marginBottom: 10, width: "100%" }}>
+            <Dropdown
+              style={{
+                fontFamily: "roboto-bold",
+                fontSize: 18,
+                minWidth: "2.5em",
+                marginBottom: 16,
+              }}
+              selection
+              value={selectedChain}
+              placeholder="Chain"
+              options={
+                !auth.loading &&
+                Object.values(chainList).map((chain) => ({
+                  key: chain,
+                  text: `Chain ${chain}`,
+                  value: chain,
+                }))
+              }
+              onChange={(e, value) => {
+                setSelectedChain(value.value);
+              }}
+            />
+            <Grid style={{ width: "100%", marginLeft: 0 }}>
               <Grid.Row columns="3">
-                <Grid.Column>Chain</Grid.Column>
-                <Grid.Column>to Account</Grid.Column>
-                <Grid.Column>Amount</Grid.Column>
+                <Grid.Column className="textBold">Tx Id</Grid.Column>
+                <Grid.Column className="textBold">to Account</Grid.Column>
+                <Grid.Column className="textBold">Amount</Grid.Column>
               </Grid.Row>
             </Grid>
             <PartialScrollableScrollSection>
-              <Grid style={{ width: "100%", minHeight: "50px" }}>
-                {/* {chainwebContext.chainEvents.length === 20
-                  ? chainwebContext?.chainEvents?.map((obj, index) => {
-                      if (obj?.length > 0) {
-                        return obj?.forEach((chain) => (
-                          <Grid.Row columns="3" key={index}>
-                            <Grid.Column>{index}</Grid.Column>
-                            <Grid.Column>{chain?.height}</Grid.Column>
-                            <Grid.Column>{`${chain?.params[2]} KDA`}</Grid.Column>
-                          </Grid.Row>
-                        ));
-                      }
-                    })
-                  : null} */}
-                <Grid.Row columns="3">
-                  <Grid.Column>0</Grid.Column>
-                  <Grid.Column>....vnd848vn40f4</Grid.Column>
-                  <Grid.Column>2 KDA</Grid.Column>
-                </Grid.Row>
-                <Grid.Row columns="3">
-                  <Grid.Column>2</Grid.Column>
-                  <Grid.Column>....vnd848vn40f4</Grid.Column>
-                  <Grid.Column>5 KDA</Grid.Column>
-                </Grid.Row>
-                <Grid.Row columns="3">
-                  <Grid.Column>1</Grid.Column>
-                  <Grid.Column>....vnd848vn40f4</Grid.Column>
-                  <Grid.Column>1.12 KDA</Grid.Column>
-                </Grid.Row>
-                <Grid.Row columns="3">
-                  <Grid.Column>5</Grid.Column>
-                  <Grid.Column>....vnd848vn40f4</Grid.Column>
-                  <Grid.Column>221.4 KDA</Grid.Column>
-                </Grid.Row>
+              <Grid
+                style={{ width: "100%", minHeight: "50px", margin: "16px 0" }}
+              >
+                {pact.txList === "NO_TX_FOUND" ? (
+                  <Grid.Row>
+                    <Grid.Column>No Transfer found</Grid.Column>
+                  </Grid.Row>
+                ) : (
+                  Object.values(pact.txList).map((tx) => (
+                    <Grid.Row
+                      columns="3"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        window.open(
+                          `https://explorer.chainweb.com/${network.name}/tx/${tx?.reqKey}`,
+                          "_blank",
+                          "noopener,noreferrer"
+                        );
+                      }}
+                    >
+                      <Grid.Column>{tx?.txId}</Grid.Column>
+                      <Grid.Column>
+                        {reduceTokenMobile(tx?.events[1]?.params[1])}
+                      </Grid.Column>
+                      <Grid.Column>{`${tx?.events[1]?.params[2]} KDA`}</Grid.Column>
+                    </Grid.Row>
+                  ))
+                )}
               </Grid>
             </PartialScrollableScrollSection>
           </ContentContainer>
