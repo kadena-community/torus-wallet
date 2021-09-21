@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useEffect } from "react";
-import { Dimmer, Loader, Dropdown } from "semantic-ui-react";
+import { Dropdown } from "semantic-ui-react";
 import { Input as SUIInput } from "semantic-ui-react";
 import styled from "styled-components/macro";
 import * as Yup from "yup";
@@ -9,32 +10,38 @@ import { AuthContext } from "../contexts/AuthContext";
 import { PactContext } from "../contexts/PactContext";
 import { ViewportContext } from "../contexts/ViewportContext";
 
-import Header from "../components/layout/header/Header";
 import Button from "../components/shared/Button";
 import InputWithLabel from "../components/shared/InputWithLabel";
 
 import { checkKey } from "../util/format-helpers";
 import { reduceBalance } from "../util/reduceBalance";
 import { chainList } from "../constants/chainList";
+import Layout from "../components/layout/Layout";
+import theme from "../styles/theme";
+import CustomLoader from "../components/shared/CustomLoader";
 
 const ContentContainer = styled.div`
-  width: 50%;
-  margin-top: 10px;
+  position: relative;
+  max-height: 90vh;
+  max-width: 650px;
   display: flex;
   flex-flow: column;
-  align: center;
+  padding: 10px 10px;
+  width: 100%;
+
+  ::-webkit-scrollbar {
+    display: block;
+  }
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobileSmallPixel + 1}px`}) {
-    margin-top: 40px !important;
     width: 90%;
-    margin-right: -10px;
   }
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     width: 90%;
-    margin-top: 30px;
+    margin-top: 10px;
   }
 `;
 
@@ -52,15 +59,6 @@ const KeyContainer = styled.div`
       `${mediaQueries.mobilePixel + 1}px`}) {
     margin-top: 34%;
   }
-`;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-  opacity: 1;
-  overflow: auto;
 `;
 
 const TitleContainer = styled.div`
@@ -84,7 +82,6 @@ const FormContainer = styled.div`
   display: flex;
   flex-flow: column;
   width: 100%;
-  /* gap: 32px; */
   padding: 20px 20px;
   border-radius: 24px;
   box-shadow: 0px 4px 56px #8383833d;
@@ -103,8 +100,18 @@ const FormContainer = styled.div`
       `${mediaQueries.mobilePixel + 1}px`}) {
     flex-flow: column;
   }
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    & > div {
+      margin-bottom: 12px !important;
+    }
+  }
+
   & > div {
     margin-bottom: 24px;
+  }
+  ::-webkit-scrollbar {
+    display: block;
   }
 `;
 
@@ -418,145 +425,168 @@ const TransferContainer = () => {
   };
 
   return (
-    <>
-      {auth.loading && (
-        <Dimmer active style={{ borderRadius: "16px" }}>
-          <Loader content="Switching Network.." />
-        </Dimmer>
-      )}
-      {pact.transferLoading && (
-        <Dimmer active style={{ borderRadius: "16px" }}>
-          <Loader content="Transfer in progress. It will take a few minutes.." />
-        </Dimmer>
-      )}
-      {auth.connectingLoading && (
-        <Dimmer active style={{ borderRadius: "16px" }}>
-          <Loader content="Connecting.." />
-        </Dimmer>
-      )}
-
-      <MainContainer>
-        <Header />
-
-        <ContentContainer>
-          <KeyContainer>
-            <TitleContainer>
-              <Title>Transfer</Title>
-            </TitleContainer>
-            <FormContainer
-              style={{ color: "#FFFFFF", flexFlow: "column" }}
-              id="tranfer"
+    <Layout
+      loader={[
+        <CustomLoader
+          loader={pact.transferLoading}
+          message="Transfer in progress. It will take a few minutes.."
+        />,
+        <CustomLoader loader={auth.connectingLoading} message="Connecting.." />,
+      ]}
+    >
+      <ContentContainer>
+        <KeyContainer>
+          <TitleContainer>
+            <Title>Transfer</Title>
+          </TitleContainer>
+          <FormContainer
+            style={{ color: "#FFFFFF", flexFlow: "column" }}
+            id="tranfer"
+          >
+            <InputWithLabel
+              label="Sender Chain"
+              error={touched.senderChain && errors.senderChain}
             >
-              <InputWithLabel
-                label="Sender Chain"
-                error={touched.senderChain && errors.senderChain}
-              >
-                <Dropdown
-                  fluid
-                  selection
-                  name="senderChain"
-                  id="senderChain"
-                  placeholder="Chain"
-                  style={{ fontFamily: "roboto-bold", fontSize: 18 }}
-                  options={getSenderChainOptions()}
-                  onChange={(e, value) => {
-                    setFieldValue("senderChain", value.value);
-                  }}
-                  value={values.senderChain}
-                />
-              </InputWithLabel>
-              <InputWithLabel
-                label="Receiver"
-                error={touched.toAccount && errors.toAccount}
-              >
-                <SUIInput
-                  fluid
-                  name="toAccount"
-                  id="toAccount"
-                  label={
-                    !viewport.isMobile ? (
-                      <Dropdown
-                        style={{
-                          fontFamily: "roboto-bold",
-                          fontSize: 18,
-                          minWidth: "7.5em",
-                        }}
-                        selection
-                        name="receiverChain"
-                        id="receiverChain"
-                        placeholder="Chain"
-                        options={
-                          !auth.loading &&
-                          Object.values(chainList).map((chain) => ({
-                            key: chain,
-                            text: `Chain ${chain}`,
-                            value: chain,
-                          }))
-                        }
-                        disabled={values.senderChain !== "ANY"}
-                        onChange={(e, value) => {
-                          setFieldValue("receiverChain", value.value);
-                        }}
-                        value={values.receiverChain}
-                      />
-                    ) : (
-                      <Dropdown
-                        style={{
-                          fontFamily: "roboto-bold",
-                          fontSize: 18,
-                          minWidth: "2.5em",
-                        }}
-                        selection
-                        name="receiverChain"
-                        id="receiverChain"
-                        placeholder="Chain"
-                        options={
-                          !auth.loading &&
-                          Object.values(chainList).map((chain) => ({
-                            key: chain,
-                            text: `Chain ${chain}`,
-                            value: chain,
-                          }))
-                        }
-                        disabled={values.senderChain !== "ANY"}
-                        onChange={(e, value) => {
-                          setFieldValue("receiverChain", value.value);
-                        }}
-                        value={values.receiverChain}
-                      />
-                    )
-                  }
-                  labelPosition="right"
-                  placeholder="Insert Public Key"
-                  size="big"
-                  // disabled={disabled}
-                  value={values.toAccount}
-                  onChange={handleChange}
-                  error={touched.toAccount && !!errors.toAccount}
-                ></SUIInput>
-              </InputWithLabel>
-              <InputWithLabel
-                label="Amount"
-                error={touched.amount && errors.amount}
-              >
-                <SUIInput
-                  fluid
-                  name="amount"
-                  id="amount"
-                  placeholder="Insert Amount"
-                  size="big"
-                  // disabled={disabled}
-                  value={values.amount}
-                  onChange={handleChange}
-                  error={touched.amount && !!errors.amount}
-                ></SUIInput>
-              </InputWithLabel>
-              <Button onClick={handleSubmit}>Transfer</Button>
-            </FormContainer>
-          </KeyContainer>
-        </ContentContainer>
-      </MainContainer>
-    </>
+              <Dropdown
+                fluid
+                selection
+                name="senderChain"
+                id="senderChain"
+                placeholder="Chain"
+                style={
+                  window.innerWidth === theme.mediaQueries.mobileSmallPixel
+                    ? {
+                        fontFamily: "roboto-bold",
+                        fontSize: 12,
+                      }
+                    : {
+                        fontFamily: "roboto-bold",
+                        fontSize: 18,
+                      }
+                }
+                options={getSenderChainOptions()}
+                onChange={(e, value) => {
+                  setFieldValue("senderChain", value.value);
+                }}
+                value={values.senderChain}
+              />
+            </InputWithLabel>
+            <InputWithLabel
+              label="Receiver"
+              error={touched.toAccount && errors.toAccount}
+            >
+              <SUIInput
+                fluid
+                name="toAccount"
+                id="toAccount"
+                label={
+                  !viewport.isMobile ? (
+                    <Dropdown
+                      style={{
+                        fontFamily: "roboto-bold",
+                        fontSize: 18,
+                        minWidth: "7.5em",
+                      }}
+                      selection
+                      name="receiverChain"
+                      id="receiverChain"
+                      placeholder="Chain"
+                      options={
+                        !auth.loading &&
+                        Object.values(chainList).map((chain) => ({
+                          key: chain,
+                          text: `Chain ${chain}`,
+                          value: chain,
+                        }))
+                      }
+                      disabled={values.senderChain !== "ANY"}
+                      onChange={(e, value) => {
+                        setFieldValue("receiverChain", value.value);
+                      }}
+                      value={values.receiverChain}
+                    />
+                  ) : (
+                    <Dropdown
+                      style={
+                        window.innerWidth ===
+                        theme.mediaQueries.mobileSmallPixel
+                          ? {
+                              fontFamily: "roboto-bold",
+                              fontSize: 12,
+                              minWidth: "3.5em",
+                            }
+                          : {
+                              fontFamily: "roboto-bold",
+                              fontSize: 18,
+                              minWidth: "2.5em",
+                            }
+                      }
+                      selection
+                      name="receiverChain"
+                      id="receiverChain"
+                      placeholder="Chain"
+                      options={
+                        !auth.loading &&
+                        Object.values(chainList).map((chain) => ({
+                          key: chain,
+                          text: `Chain ${chain}`,
+                          value: chain,
+                        }))
+                      }
+                      disabled={values.senderChain !== "ANY"}
+                      onChange={(e, value) => {
+                        setFieldValue("receiverChain", value.value);
+                      }}
+                      value={values.receiverChain}
+                    />
+                  )
+                }
+                style={
+                  window.innerWidth === theme.mediaQueries.mobileSmallPixel
+                    ? {
+                        fontSize: 12,
+                        minWidth: "4.5em",
+                      }
+                    : {}
+                }
+                labelPosition="right"
+                placeholder="Insert Public Key"
+                size="big"
+                // disabled={disabled}
+                value={values.toAccount}
+                onChange={handleChange}
+                error={touched.toAccount && !!errors.toAccount}
+              ></SUIInput>
+            </InputWithLabel>
+            <InputWithLabel
+              label="Amount"
+              error={touched.amount && errors.amount}
+            >
+              <SUIInput
+                fluid
+                name="amount"
+                id="amount"
+                placeholder="Insert Amount"
+                size="big"
+                style={
+                  window.innerWidth === theme.mediaQueries.mobileSmallPixel
+                    ? {
+                        fontSize: 12,
+                        minWidth: "4.5em",
+                      }
+                    : {}
+                }
+                // disabled={disabled}
+                value={values.amount}
+                onChange={handleChange}
+                error={touched.amount && !!errors.amount}
+              ></SUIInput>
+            </InputWithLabel>
+            <Button onClick={handleSubmit}>Transfer</Button>
+          </FormContainer>
+        </KeyContainer>
+      </ContentContainer>
+    </Layout>
   );
 };
 

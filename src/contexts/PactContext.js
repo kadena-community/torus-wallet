@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import Pact from "pact-lang-api";
 import { NetworkContext } from "./NetworkContext";
-import { AuthContext } from "./AuthContext";
 import swal from "sweetalert";
 import { formatAmount } from "../util/format-helpers";
 
@@ -9,14 +8,13 @@ export const PactContext = createContext(null);
 
 export const PactProvider = (props) => {
   const networkContext = useContext(NetworkContext);
-  const authContext = useContext(AuthContext);
   const [transferLoading, setTransferLoading] = useState(false);
   const [txList, setTxList] = useState({});
-  const [account, setAccount] = useState({
-    account: null,
-    guard: null,
-    balance: 0,
-  });
+  // const [account, setAccount] = useState({
+  //   account: null,
+  //   guard: null,
+  //   balance: 0,
+  // });
 
   const TTL = 28800;
   const GAS_PRICE = 0.0000000001;
@@ -95,11 +93,11 @@ export const PactProvider = (props) => {
     });
   };
 
-  const wait = async (timeout) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, timeout);
-    });
-  };
+  // const wait = async (timeout) => {
+  //   return new Promise((resolve) => {
+  //     setTimeout(resolve, timeout);
+  //   });
+  // };
 
   const getTransferList = async (chainId) => {
     setTxList({});
@@ -377,7 +375,7 @@ export const PactProvider = (props) => {
     chainId
   ) => {
     try {
-      const accountPubKey = getPubFromPriv(accountPrivKey);
+      // const accountPubKey = getPubFromPriv(accountPrivKey);
       let chainBalances = {};
       for (let i = 0; i < 20; i++) {
         if (i.toString() === chainId) continue;

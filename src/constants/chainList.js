@@ -1,5 +1,3 @@
-import React from "react";
-
 export const chainList = {
   "Chain 0": 0,
   "Chain 1": 1,

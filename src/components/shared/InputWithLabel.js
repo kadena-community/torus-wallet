@@ -28,6 +28,11 @@ const Label = styled.span`
     disabled ? `${colors.primaryColor}33` : colors.primaryColor};
   font-size: 24px;
   font-family: "roboto-bold";
+
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    font-size: 18px;
+  }
 `;
 
 const Error = styled.div.attrs({ capitalize: true })`

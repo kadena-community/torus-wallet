@@ -44,7 +44,6 @@ const LeftContainer = styled.div`
 
 const Item = styled.div`
   color: #ffffff;
-  /* font-size: 14px; */
   text-decoration: none;
   text-transform: capitalize;
   background: transparent;

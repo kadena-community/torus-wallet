@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import Pact from "pact-lang-api";
 import { TorusContext } from "./TorusContext";
@@ -105,6 +106,7 @@ export const AuthProvider = (props) => {
         login,
         logout,
         totalBalance,
+        setTotalBalance,
         loginForTransfer,
       }}
     >

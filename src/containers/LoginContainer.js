@@ -1,11 +1,10 @@
-import React, { useContext} from "react";
-import { Button, Loader, Dimmer } from 'semantic-ui-react';
-import styled from 'styled-components/macro';
+import React, { useContext } from "react";
+import { Button, Loader, Dimmer } from "semantic-ui-react";
+import styled from "styled-components/macro";
 import { ReactComponent as HomeLogoImage } from "../assets/images/kadena-torus.svg";
 import { ReactComponent as GoogleLogo } from "../assets/images/google_logo.svg";
 import { AuthContext } from "../contexts/AuthContext";
 import { ViewportContext } from "../contexts/ViewportContext";
-
 
 const HomeContainer = styled.div`
   position: relative;
@@ -23,13 +22,12 @@ const HomeContainer = styled.div`
   opacity: 1;
   background: transparent radial-gradient(closest-side at 31% -64%, #2B237C 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box;;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
-      `${mediaQueries.mobilePixel + 1}px`}) {
+    `${mediaQueries.mobilePixel + 1}px`}) {
     margin: 30px 18px 18px;
     padding 0px;
     flex-flow: column;
   }
 `;
-
 
 const HomeTopContainer = styled.div`
   display: flex;
@@ -68,13 +66,17 @@ const HomeRightContainer = styled.div`
   align-items: center;
   height: 100%;
   width: 50%;
-  background: #FFFFFF 0% 0% no-repeat padding-box;
+  background: #ffffff 0% 0% no-repeat padding-box;
   border-radius: 16px;
   opacity: 1;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     width: 100%;
     padding: 0px;
+  }
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    padding: 16px;
   }
 `;
 
@@ -84,8 +86,6 @@ const HomeRightContent = styled.div`
   justify-content: left;
   align-items: left;
 `;
-
-
 
 const HomeTitle = styled.span`
   font: normal normal bold 32px/38px roboto-bold;
@@ -127,7 +127,6 @@ const HomeButtonText = styled.span`
   padding: 0px 20px;
 `;
 
-
 const ButtonContent = styled.div`
   display: flex;
   flex-flow: row;
@@ -135,62 +134,67 @@ const ButtonContent = styled.div`
   width: 100%;
 `;
 
-
-function LoginContainer (props) {
-
+function LoginContainer(props) {
   const auth = useContext(AuthContext);
-  const viewport = useContext(ViewportContext)
+  const viewport = useContext(ViewportContext);
 
   const login = async () => {
-     await auth.login();
-  }
+    await auth.login();
+  };
 
-    return (
-        
-      <>
-        {viewport.isMobile && 
-          <HomeTopContainer className="desktop-none">
-            <HomeLogoImage className="desktop-none" style={{ maxWidth: "100%" }} />
-          </HomeTopContainer>
-         
-        }
-        
-        
-        <HomeContainer >
-          {!viewport.isMobile &&
-            <HomeLeftContainer>
-              <HomeLogoImage className="mobile-none" style={{maxWidth: "100%"}}/>
-            </HomeLeftContainer>
-          }
-            
-            <HomeRightContainer>
-            <HomeRightContent>
-                <HomeTitle>Hi, Welcome Back!</HomeTitle>
-                <HomeSubTitle>Access your Wallet</HomeSubTitle>
-                <HomeParagraph>Login using Google via Direct Auth</HomeParagraph>
-                
-            
-            
-            {
-            auth.loading ? (
-                <Dimmer active style={{borderRadius: "16px"}}>
-                    <Loader content='Retrieving your data..' />
-                </Dimmer>
+  return (
+    <>
+      {viewport.isMobile && (
+        <HomeTopContainer className="desktop-none">
+          <HomeLogoImage
+            className="desktop-none"
+            style={{ maxWidth: "100%" }}
+          />
+        </HomeTopContainer>
+      )}
+
+      <HomeContainer>
+        {!viewport.isMobile && (
+          <HomeLeftContainer>
+            <HomeLogoImage
+              className="mobile-none"
+              style={{ maxWidth: "100%" }}
+            />
+          </HomeLeftContainer>
+        )}
+
+        <HomeRightContainer>
+          <HomeRightContent>
+            <HomeTitle>Hi, Welcome Back!</HomeTitle>
+            <HomeSubTitle>Access your Wallet</HomeSubTitle>
+            <HomeParagraph>Login using Google via Direct Auth</HomeParagraph>
+
+            {auth.loading ? (
+              <Dimmer active style={{ borderRadius: "16px" }}>
+                <Loader content="Retrieving your data.." />
+              </Dimmer>
             ) : (
-            <Button primary onClick={login} style={{ background: "#FFFFFF 0% 0% no-repeat padding-box", boxShadow: "0px 2px 6px #0000001A", color: "#212121", flexFlow: "row" }}>
+              <Button
+                primary
+                onClick={login}
+                style={{
+                  background: "#FFFFFF 0% 0% no-repeat padding-box",
+                  boxShadow: "0px 2px 6px #0000001A",
+                  color: "#212121",
+                  flexFlow: "row",
+                }}
+              >
                 <ButtonContent>
-                <GoogleLogo style={{marginRight: "25px"}} />
-                <HomeButtonText >Sign in with Google</HomeButtonText>
+                  <GoogleLogo style={{ marginRight: "25px" }} />
+                  <HomeButtonText>Sign in with Google</HomeButtonText>
                 </ButtonContent>
-            </Button>
-                )}
-            </HomeRightContent>
-            </HomeRightContainer>
-        </HomeContainer>
-        </>
-            
-    );
-  
+              </Button>
+            )}
+          </HomeRightContent>
+        </HomeRightContainer>
+      </HomeContainer>
+    </>
+  );
 }
 
 export default LoginContainer;

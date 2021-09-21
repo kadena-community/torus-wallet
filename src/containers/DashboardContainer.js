@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { Button, Dimmer, Popup, Loader } from "semantic-ui-react";
+import React, { useContext } from "react";
+import { Button, Popup } from "semantic-ui-react";
 import { useHistory } from "react-router";
 import styled from "styled-components/macro";
 import { ReactComponent as KDAIcon } from "../assets/images/k_blu.svg";
@@ -10,8 +10,8 @@ import { reduceBalance } from "../util/reduceBalance";
 import { reduceToken } from "../util/reduceToken";
 import { AuthContext } from "../contexts/AuthContext";
 import { NetworkContext } from "../contexts/NetworkContext";
-import Header from "../components/layout/header/Header";
 import { ROUTE_TRANSFER } from "../router/routes";
+import Layout from "../components/layout/Layout";
 
 const Item = styled.div`
   color: #ffffff;
@@ -35,11 +35,7 @@ const ContentContainer = styled.div`
   display: flex;
   flex-flow: column;
   align: center;
-
-  @media (max-width: ${({ theme: { mediaQueries } }) =>
-      `${mediaQueries.mobilePixel + 1}px`}) {
-    margin-top: 30px;
-  }
+  max-height: 70vh;
 `;
 
 const KeyContainer = styled.div`
@@ -55,16 +51,8 @@ const KeyContainer = styled.div`
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     margin-top: 34%;
+    margin-bottom: 16px;
   }
-`;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-  opacity: 1;
-  overflow: auto;
 `;
 
 const RowContainer = styled.div`
@@ -88,6 +76,10 @@ const TitleContainer = styled.div`
   flex-flow: column;
   margin-bottom: 10px;
   width: 100%;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+    margin-bottom: 0px;
+  }
 `;
 
 const Title = styled.span`
@@ -95,6 +87,10 @@ const Title = styled.span`
   letter-spacing: 0px;
   color: #ffffff;
   text-transform: capitalize;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+    font-size: 24px;
+  }
 `;
 
 const SubTitleContainer = styled.div`
@@ -143,6 +139,10 @@ const BalanceCurrencyTitle = styled.span`
   color: #ffffff;
   text-transform: capitalize;
   opacity: 1;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+    font-size: 24px;
+  }
 `;
 
 const CurrencyBalance = styled.span`
@@ -150,6 +150,10 @@ const CurrencyBalance = styled.span`
   letter-spacing: 0px;
   color: #ffffff;
   opacity: 1;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+    font-size: 24px;
+  }
 `;
 const CurrencyBalanceTokenName = styled.span`
   font: normal normal normal 24px/32px roboto-regular;
@@ -158,6 +162,10 @@ const CurrencyBalanceTokenName = styled.span`
   opacity: 1;
   vertical-align: middle;
   margin-left: 5px;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+    font-size: 24px;
+  }
 `;
 
 /* const CurrencyBalanceInfo = styled.span`
@@ -210,8 +218,6 @@ function DashboardContainer(props) {
   const auth = useContext(AuthContext);
   const networkContext = useContext(NetworkContext);
 
-  const [totalBalance, setTotalBalance] = useState(0);
-
   /* useEffect(() => {
       getTotBalance()
   }, [networkContext.network])
@@ -225,84 +231,75 @@ function DashboardContainer(props) {
   } */
 
   return (
-    <>
-      {auth.loading && (
-        <Dimmer active style={{ borderRadius: "16px" }}>
-          <Loader content="Switching Network.." />
-        </Dimmer>
-      )}
-
-      <MainContainer>
-        <Header />
-
-        <ContentContainer>
-          <KeyContainer>
-            <TitleContainer>
-              <Title>Your Public Key:</Title>
-            </TitleContainer>
-            <FormContainer
-              style={{ color: "#FFFFFF", flexFlow: "row" }}
-              id="pubKey"
-            >
-              <div className="mobile-none">{auth.user.publicKey}</div>
-              <div className="desktop-none">
-                {reduceToken(auth.user.publicKey)}
-              </div>
-              <Popup
-                className="mobile-none"
-                content="copied!"
-                on="click"
-                position="bottom right"
-                style={{ opacity: 0.7 }}
-                pinned
-                trigger={
-                  <CopyIcon
-                    className="mobile-none"
-                    style={{ marginLeft: "35px" }}
-                    onClick={() => {
-                      navigator.clipboard.writeText(auth.user.publicKey);
-                    }}
-                  />
-                }
-              />
-            </FormContainer>
-          </KeyContainer>
+    <Layout>
+      <ContentContainer>
+        <KeyContainer>
           <TitleContainer>
-            <Title>Account Balance</Title>
-            {!auth.loading && (
-              <SubTitleContainer>
-                <Popup
-                  basic
-                  trigger={
-                    <SubTitle>
-                      Total
-                      <DropdownIcon
-                        style={{ marginLeft: "10px", marginBottom: "4px" }}
-                      />
-                    </SubTitle>
-                  }
-                  on="click"
-                  offset={[0, 1]}
-                  position="bottom left"
-                  style={{
-                    height: "196px",
-                    overflow: "auto",
-                    background:
-                      "transparent radial-gradient(closest-side at 31% -64%, #201669 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box",
-                    boxShadow: "0px 4px 56px #8383833D",
-                    border: "1px solid #110750",
-                    borderRadius: "10px",
+            <Title>Your Public Key:</Title>
+          </TitleContainer>
+          <FormContainer
+            style={{ color: "#FFFFFF", flexFlow: "row" }}
+            id="pubKey"
+          >
+            <div className="mobile-none">{auth.user.publicKey}</div>
+            <div className="desktop-none">
+              {reduceToken(auth.user.publicKey)}
+            </div>
+            <Popup
+              className="mobile-none"
+              content="copied!"
+              on="click"
+              position="bottom right"
+              style={{ opacity: 0.7 }}
+              pinned
+              trigger={
+                <CopyIcon
+                  className="mobile-none"
+                  style={{ marginLeft: "35px" }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(auth.user.publicKey);
                   }}
-                >
-                  {auth.user.balance.map((bal, index) => {
-                    return (
-                      <ChainBalanceContainer key={index}>
-                        <ChainName>Chain {index}</ChainName>
-                        <Item>{reduceBalance(bal)}</Item>
-                      </ChainBalanceContainer>
-                    );
-                  })}
-                  {/*
+                />
+              }
+            />
+          </FormContainer>
+        </KeyContainer>
+        <TitleContainer>
+          <Title>Account Balance</Title>
+          {!auth.loading && (
+            <SubTitleContainer>
+              <Popup
+                basic
+                trigger={
+                  <SubTitle>
+                    Total
+                    <DropdownIcon
+                      style={{ marginLeft: "10px", marginBottom: "4px" }}
+                    />
+                  </SubTitle>
+                }
+                on="click"
+                offset={[0, 1]}
+                position="bottom left"
+                style={{
+                  height: "196px",
+                  overflow: "auto",
+                  background:
+                    "transparent radial-gradient(closest-side at 31% -64%, #201669 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box",
+                  boxShadow: "0px 4px 56px #8383833D",
+                  border: "1px solid #110750",
+                  borderRadius: "10px",
+                }}
+              >
+                {auth.user.balance.map((bal, index) => {
+                  return (
+                    <ChainBalanceContainer key={index}>
+                      <ChainName>Chain {index}</ChainName>
+                      <Item>{reduceBalance(bal)}</Item>
+                    </ChainBalanceContainer>
+                  );
+                })}
+                {/*
                         <ChainBalanceContainer>
                           <ChainName>Chain 0</ChainName>
                           <Item>1233333.8888</Item>
@@ -311,80 +308,79 @@ function DashboardContainer(props) {
                           <ChainName>Chain 1</ChainName>
                           <Item>3.00</Item>
                         </ChainBalanceContainer> */}
-                </Popup>
+              </Popup>
 
-                <SubTitle className="mobile-none">
-                  {auth.user.balance.reduce((a, b) => {
-                    return parseFloat(a) + parseFloat(b);
-                  })}{" "}
-                  KDA
-                </SubTitle>
-                <SubTitle className="desktop-none">
-                  {reduceBalance(
-                    auth.user.balance.reduce((a, b) => {
-                      return parseFloat(a) + parseFloat(b);
-                    })
-                  )}{" "}
-                  KDA
-                </SubTitle>
-              </SubTitleContainer>
-            )}
-          </TitleContainer>
-          <FormContainer style={{ color: "#FFFFFF" }}>
-            <RowContainer>
-              <BalanceCurrencyTitle>
-                <KDAIcon style={{ marginRight: "10px" }} />
-                kadena
-              </BalanceCurrencyTitle>
-              <CurrencyBalance className="mobile-none">
+              <SubTitle className="mobile-none">
                 {auth.user.balance.reduce((a, b) => {
                   return parseFloat(a) + parseFloat(b);
-                })}
-                <CurrencyBalanceTokenName>KDA</CurrencyBalanceTokenName>
-              </CurrencyBalance>
-              <CurrencyBalance className="desktop-none">
+                })}{" "}
+                KDA
+              </SubTitle>
+              <SubTitle className="desktop-none">
                 {reduceBalance(
                   auth.user.balance.reduce((a, b) => {
                     return parseFloat(a) + parseFloat(b);
                   })
-                )}
-                <CurrencyBalanceTokenName>KDA</CurrencyBalanceTokenName>
-              </CurrencyBalance>
-            </RowContainer>
-            {/* <RowContainer>
+                )}{" "}
+                KDA
+              </SubTitle>
+            </SubTitleContainer>
+          )}
+        </TitleContainer>
+        <FormContainer style={{ color: "#FFFFFF" }}>
+          <RowContainer>
+            <BalanceCurrencyTitle>
+              <KDAIcon style={{ marginRight: "10px" }} />
+              kadena
+            </BalanceCurrencyTitle>
+            <CurrencyBalance className="mobile-none">
+              {auth.user.balance.reduce((a, b) => {
+                return parseFloat(a) + parseFloat(b);
+              })}
+              <CurrencyBalanceTokenName>KDA</CurrencyBalanceTokenName>
+            </CurrencyBalance>
+            <CurrencyBalance className="desktop-none">
+              {reduceBalance(
+                auth.user.balance.reduce((a, b) => {
+                  return parseFloat(a) + parseFloat(b);
+                })
+              )}
+              <CurrencyBalanceTokenName>KDA</CurrencyBalanceTokenName>
+            </CurrencyBalance>
+          </RowContainer>
+          {/* <RowContainer>
                   <CurrencyBalanceInfo style={{ color: '#FFFFFF' }}>1 KDA = {reduceBalance(kdaValue)} $</CurrencyBalanceInfo>
                   <CurrencyBalanceInfo>{reduceBalance(auth.user.balance*kdaValue)} $</CurrencyBalanceInfo>
                 </RowContainer> */}
-            <ButtonContainer>
-              <Button.Group fluid>
-                <MyButton disabled buttonStyle={{ marginRight: "10px" }}>
-                  Top up
-                </MyButton>
-                <MyButton
-                  disabled={auth.user.balance === 0}
-                  buttonStyle={{ marginLeft: "10px" }}
-                  onClick={() => history.push(ROUTE_TRANSFER)}
-                >
-                  Transfer
-                </MyButton>
-              </Button.Group>
-            </ButtonContainer>
-          </FormContainer>
-        </ContentContainer>
-
-        {networkContext.network.name === "testnet" && !auth.loading && (
           <ButtonContainer>
-            <a
-              href="https://faucet.testnet.chainweb.com/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <MyButton>Go to Testnet Faucet</MyButton>
-            </a>
+            <Button.Group fluid>
+              <MyButton disabled buttonStyle={{ marginRight: "10px" }}>
+                Top up
+              </MyButton>
+              <MyButton
+                disabled={auth.user.balance === 0}
+                buttonStyle={{ marginLeft: "10px" }}
+                onClick={() => history.push(ROUTE_TRANSFER)}
+              >
+                Transfer
+              </MyButton>
+            </Button.Group>
           </ButtonContainer>
-        )}
-      </MainContainer>
-    </>
+        </FormContainer>
+      </ContentContainer>
+
+      {networkContext.network.name === "testnet" && !auth.loading && (
+        <ButtonContainer>
+          <a
+            href="https://faucet.testnet.chainweb.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <MyButton>Go to Testnet Faucet</MyButton>
+          </a>
+        </ButtonContainer>
+      )}
+    </Layout>
   );
 }
 
