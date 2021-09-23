@@ -6,7 +6,6 @@ import { NetworkContext } from "../../contexts/NetworkContext";
 
 const ButtonsContainer = styled.div`
   display: flex;
-
   justify-content: space-between;
 `;
 const Button = styled(CustomButton)`
@@ -24,6 +23,7 @@ const ToggleSwitchButton = ({
   onChange,
   containerStyle,
   disabled,
+  buttonSize,
   background,
 }) => {
   const networkContext = useContext(NetworkContext);
@@ -44,6 +44,7 @@ const ToggleSwitchButton = ({
               }
             : selectedStyle
         }
+        size={buttonSize}
         border="transparent"
         onClick={() => {
           networkContext.toggleNetwork();
@@ -65,6 +66,7 @@ const ToggleSwitchButton = ({
               }
             : selectedStyle
         }
+        size={buttonSize}
         border="transparent"
         onClick={() => {
           networkContext.toggleNetwork();

@@ -23,7 +23,6 @@ const Container = styled.div`
 
   align-items: center;
   justify-content: center;
-  margin-top: 24px;
   margin-left: auto;
   margin-right: auto;
   height: auto;
@@ -37,6 +36,7 @@ const Layout = ({ loader, children }) => {
       {loader?.map((load) => load)}
       <MainContainer>
         <Header />
+
         <Container>{children}</Container>
       </MainContainer>
     </>

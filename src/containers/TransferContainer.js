@@ -46,7 +46,6 @@ const ContentContainer = styled.div`
 `;
 
 const KeyContainer = styled.div`
-  margin-top: 20%;
   margin-bottom: 40px;
   display: flex;
   width: 100%;
@@ -57,7 +56,6 @@ const KeyContainer = styled.div`
   align-items: center;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
-    margin-top: 34%;
   }
 `;
 

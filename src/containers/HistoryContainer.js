@@ -13,7 +13,7 @@ import Layout from "../components/layout/Layout";
 
 const ContentContainer = styled.div`
   position: relative;
-  margin-top: 100px;
+  margin-top: 50px;
   max-height: 70vh;
   max-width: 650px;
   display: flex;
@@ -34,6 +34,7 @@ const ContentContainer = styled.div`
   color: #ffffff;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
+    margin-top: 10%;
     margin-left: 10px;
     margin-right: 10px;
   }

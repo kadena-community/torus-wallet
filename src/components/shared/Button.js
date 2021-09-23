@@ -7,10 +7,7 @@ const StyledButton = styled(SUIButton)`
   font-family: roboto-bold !important;
   font-size: ${({ fontSize }) =>
     fontSize ? fontSize + " !important" : "16px !important"};
-  color: ${({
-    color,
-    inverted
-  }) =>{
+  color: ${({ color, inverted }) => {
     if (color) return color + " !important";
     if (inverted) return "#281F71 !important";
     return " white !important";
@@ -28,17 +25,13 @@ const StyledButton = styled(SUIButton)`
   }};
   border-radius: 5px !important;
   opacity: 1 !important;
-  border: ${({
-    border,
-  }) => {
+  border: ${({ border }) => {
     if (border) return border + " !important";
     return "1px solid #FFFFFF !important";
   }};
-  box-shadow: ${({
-    boxShadow,
-  }) => {
-  if (boxShadow) return boxShadow + " !important";
-  return "0px 2px 6px #0000001A";
+  box-shadow: ${({ boxShadow }) => {
+    if (boxShadow) return boxShadow + " !important";
+    return "0px 2px 6px #0000001A";
   }};
   /* box-shadow: 0 0 4px #FFFFFF !important; */
   /* :hover {
@@ -56,6 +49,7 @@ const Button = ({
   background,
   color,
   fontSize,
+  size,
   children,
   onClick,
   loading,
@@ -68,6 +62,7 @@ const Button = ({
       disabled={disabled}
       background={background}
       color={color}
+      size={size}
       fontSize={fontSize}
       style={buttonStyle}
       onClick={onClick}

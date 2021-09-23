@@ -35,11 +35,12 @@ const ContentContainer = styled.div`
   display: flex;
   flex-flow: column;
   align: center;
+  justify-content: center;
   max-height: 70vh;
 `;
 
 const KeyContainer = styled.div`
-  margin-top: 20%;
+  margin-top: 10%;
   margin-bottom: 40px;
   display: flex;
   width: 100%;
@@ -50,7 +51,12 @@ const KeyContainer = styled.div`
   align-items: center;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
-    margin-top: 34%;
+    margin-top: 10%;
+    margin-bottom: 16px;
+  }
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    margin-top: 10%;
     margin-bottom: 16px;
   }
 `;
