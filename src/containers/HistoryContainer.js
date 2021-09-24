@@ -129,9 +129,10 @@ const HistoryContainer = () => {
                 <Grid.Column>No Transfer found</Grid.Column>
               </Grid.Row>
             ) : (
-              Object.values(pact.txList).map((tx) => (
+              Object.values(pact.txList).map((tx, index) => (
                 <Grid.Row
                   columns="3"
+                  key={index}
                   style={{ cursor: "pointer" }}
                   onClick={() => {
                     window.open(

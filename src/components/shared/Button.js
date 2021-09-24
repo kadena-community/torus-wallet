@@ -29,11 +29,10 @@ const StyledButton = styled(SUIButton)`
     if (border) return border + " !important";
     return "1px solid #FFFFFF !important";
   }};
-  box-shadow: ${({ boxShadow }) => {
-    if (boxShadow) return boxShadow + " !important";
+  box-shadow: ${({ boxshadow }) => {
+    if (boxshadow) return boxshadow + " !important";
     return "0px 2px 6px #0000001A";
   }};
-  /* box-shadow: 0 0 4px #FFFFFF !important; */
   /* :hover {
     opacity: ${({ hover }) => (hover ? 0.7 : 1.0) + " !important"};
     cursor: pointer;
@@ -44,7 +43,7 @@ const Button = ({
   props,
   disabled,
   border,
-  boxShadow,
+  boxshadow,
   buttonStyle,
   background,
   color,
@@ -68,7 +67,7 @@ const Button = ({
       onClick={onClick}
       loading={loading}
       border={border}
-      boxShadow={boxShadow}
+      boxshadow={boxshadow}
       hover={hover}
       inverted={inverted}
     >
