@@ -11,7 +11,7 @@ const ButtonsContainer = styled.div`
 const Button = styled(CustomButton)`
   margin-left: ${({ label1 }) => (!label1 ? "-16px" : "unset")} !important;
   width: 100%;
-  color: white;
+  color: ${({ theme: { colors } }) => colors.white};
 `;
 const selectedStyle = {
   borderRadius: 20,

@@ -2,9 +2,7 @@ import React, { useContext } from "react";
 import { Button, Popup } from "semantic-ui-react";
 import { useHistory } from "react-router";
 import styled from "styled-components/macro";
-import { ReactComponent as KDAIcon } from "../assets/images/k_blu.svg";
-import { ReactComponent as CopyIcon } from "../assets/images/copy.svg";
-import { ReactComponent as DropdownIcon } from "../assets/images/dropdown_icon.svg";
+
 import MyButton from "../components/shared/Button";
 import { reduceBalance } from "../util/reduceBalance";
 import { reduceToken } from "../util/reduceToken";
@@ -12,14 +10,15 @@ import { AuthContext } from "../contexts/AuthContext";
 import { NetworkContext } from "../contexts/NetworkContext";
 import { ROUTE_TRANSFER } from "../router/routes";
 import Layout from "../components/layout/Layout";
+import { CopyIcon, DropdownIcon, KadenaBlueIcon } from "../assets";
+import theme from "../styles/theme";
 
 const Item = styled.div`
-  color: #ffffff;
-  /* font-size: 14px; */
+  color: ${({ theme: { colors } }) => colors.white};
   text-decoration: none;
   text-transform: capitalize;
   background: transparent;
-  font: normal normal bold 16px/20px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.tinyBold};
   &.active {
     font-weight: bold;
   }
@@ -89,9 +88,9 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.span`
-  font: normal normal bold 32px/38px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   letter-spacing: 0px;
-  color: #ffffff;
+  color: ${({ theme: { colors } }) => colors.white};
   text-transform: capitalize;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
@@ -108,7 +107,7 @@ const SubTitleContainer = styled.div`
 `;
 
 const SubTitle = styled.span`
-  font: normal normal bold 24px/28px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.smallBold};
   letter-spacing: 0px;
   color: #ffffff;
   opacity: 1;
@@ -127,7 +126,7 @@ const ChainName = styled.div`
   text-decoration: none;
   text-transform: capitalize;
   background: transparent;
-  font: normal normal bold 16px/20px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.tinyBold};
   margin-right: 25px;
   &.active {
     font-weight: bold;
@@ -140,9 +139,9 @@ const ChainName = styled.div`
 `;
 
 const BalanceCurrencyTitle = styled.span`
-  font: normal normal bold 32px/38px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   letter-spacing: 0px;
-  color: #ffffff;
+  color: ${({ theme: { colors } }) => colors.white};
   text-transform: capitalize;
   opacity: 1;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
@@ -152,9 +151,9 @@ const BalanceCurrencyTitle = styled.span`
 `;
 
 const CurrencyBalance = styled.span`
-  font: normal normal bold 32px/38px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   letter-spacing: 0px;
-  color: #ffffff;
+  color: ${({ theme: { colors } }) => colors.white};
   opacity: 1;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
@@ -162,9 +161,9 @@ const CurrencyBalance = styled.span`
   }
 `;
 const CurrencyBalanceTokenName = styled.span`
-  font: normal normal normal 24px/32px roboto-regular;
+  font: ${({ theme: { macroFont } }) => macroFont.mediumRegular};
   letter-spacing: 0px;
-  color: #ffffff;
+  color: ${({ theme: { colors } }) => colors.white};
   opacity: 1;
   vertical-align: middle;
   margin-left: 5px;
@@ -174,13 +173,6 @@ const CurrencyBalanceTokenName = styled.span`
   }
 `;
 
-/* const CurrencyBalanceInfo = styled.span`
-  font: normal normal normal 16px/21px roboto-regular;
-  letter-spacing: 0px;
-  color: #FFFFFF;
-  opacity: 1;
-`; */
-
 const FormContainer = styled.div`
   position: relative;
   display: flex;
@@ -189,20 +181,15 @@ const FormContainer = styled.div`
   /* gap: 32px; */
   padding: 20px 20px;
   border-radius: 24px;
-  box-shadow: 0px 4px 56px #8383833d;
+  box-shadow: ${theme.boxshadowLogin};
   align-items: center;
   justify-content: center;
   opacity: 1;
-  background: transparent
-    radial-gradient(
-      closest-side at 31% -64%,
-      #2b237c 0%,
-      #251c72 31%,
-      #0f054c 100%
-    )
-    0% 0% no-repeat padding-box;
-  @media (max-width: ${({ theme: { mediaQueries } }) =>
-      `${mediaQueries.mobilePixel + 1}px`}) {
+  background: ${theme.backgroundGradient} @media
+    (
+      max-width:
+        ${({ theme: { mediaQueries } }) => `${mediaQueries.mobilePixel + 1}px`}
+    ) {
     flex-flow: column;
   }
 `;
@@ -224,18 +211,6 @@ function DashboardContainer(props) {
   const auth = useContext(AuthContext);
   const networkContext = useContext(NetworkContext);
 
-  /* useEffect(() => {
-      getTotBalance()
-  }, [networkContext.network])
-
-  const getTotBalance = () => {
-    let tot = 0;
-    for (let i = 0; i < auth.user.balance.length; i++) {
-      tot += parseFloat(auth.user.balance[i])
-    }
-    setTotalBalance(tot)
-  } */
-
   return (
     <Layout>
       <ContentContainer>
@@ -244,7 +219,7 @@ function DashboardContainer(props) {
             <Title>Your Public Key:</Title>
           </TitleContainer>
           <FormContainer
-            style={{ color: "#FFFFFF", flexFlow: "row" }}
+            style={{ color: theme.colors.white, flexFlow: "row" }}
             id="pubKey"
           >
             <div className="mobile-none">{auth.user.publicKey}</div>
@@ -336,7 +311,7 @@ function DashboardContainer(props) {
         <FormContainer style={{ color: "#FFFFFF" }}>
           <RowContainer>
             <BalanceCurrencyTitle>
-              <KDAIcon style={{ marginRight: "10px" }} />
+              <KadenaBlueIcon style={{ marginRight: "10px" }} />
               kadena
             </BalanceCurrencyTitle>
             <CurrencyBalance className="mobile-none">

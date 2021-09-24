@@ -12,20 +12,20 @@ import AppRouter from "./router/router";
 
 function App() {
   return (
-    <TorusProvider>
-      <NetworkProvider>
-        <PactProvider>
-          <AuthProvider>
-            <ViewportProvider>
-              <ThemeProvider theme={theme}>
-                <GlobalStyle />
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <TorusProvider>
+        <NetworkProvider>
+          <PactProvider>
+            <AuthProvider>
+              <ViewportProvider>
                 <AppRouter />
-              </ThemeProvider>
-            </ViewportProvider>
-          </AuthProvider>
-        </PactProvider>
-      </NetworkProvider>
-    </TorusProvider>
+              </ViewportProvider>
+            </AuthProvider>
+          </PactProvider>
+        </NetworkProvider>
+      </TorusProvider>
+    </ThemeProvider>
   );
 }
 

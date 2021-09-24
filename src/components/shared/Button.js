@@ -2,15 +2,16 @@
 import React from "react";
 import styled from "styled-components/macro";
 import { Button as SUIButton } from "semantic-ui-react";
+import theme from "../../styles/theme";
 
 const StyledButton = styled(SUIButton)`
-  font-family: roboto-bold !important;
+  font-family: ${({ theme: { fontFamily } }) => fontFamily.bold} !important;
   font-size: ${({ fontSize }) =>
     fontSize ? fontSize + " !important" : "16px !important"};
   color: ${({ color, inverted }) => {
     if (color) return color + " !important";
-    if (inverted) return "#281F71 !important";
-    return " white !important";
+    if (inverted) return `${theme.colors.primary} !important`;
+    return `${theme.colors.white} !important`;
   }};
   background: ${({
     disabled,
@@ -19,7 +20,7 @@ const StyledButton = styled(SUIButton)`
     theme: { buttonBackgroundGradient },
   }) => {
     if (background) return background + " !important";
-    if (inverted) return "#FFFFFF !important";
+    if (inverted) return `${theme.colors.white} !important`;
     if (disabled) return "transparent !important";
     return buttonBackgroundGradient + "!important";
   }};
@@ -27,16 +28,12 @@ const StyledButton = styled(SUIButton)`
   opacity: 1 !important;
   border: ${({ border }) => {
     if (border) return border + " !important";
-    return "1px solid #FFFFFF !important";
+    return `1px solid ${theme.colors.white} !important`;
   }};
   box-shadow: ${({ boxshadow }) => {
     if (boxshadow) return boxshadow + " !important";
-    return "0px 2px 6px #0000001A";
+    return theme.boxshadow;
   }};
-  /* :hover {
-    opacity: ${({ hover }) => (hover ? 0.7 : 1.0) + " !important"};
-    cursor: pointer;
-  } */
 `;
 
 const Button = ({

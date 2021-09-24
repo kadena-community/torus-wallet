@@ -375,7 +375,7 @@ export const PactProvider = (props) => {
     chainId
   ) => {
     try {
-      const accountPubKey = getPubFromPriv(accountPrivKey);
+      // const accountPubKey = getPubFromPriv(accountPrivKey);
       let chainBalances = {};
       for (let i = 0; i < 20; i++) {
         if (i.toString() === chainId) continue;
