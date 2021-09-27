@@ -185,11 +185,9 @@ const FormContainer = styled.div`
   align-items: center;
   justify-content: center;
   opacity: 1;
-  background: ${theme.backgroundGradient} @media
-    (
-      max-width:
-        ${({ theme: { mediaQueries } }) => `${mediaQueries.mobilePixel + 1}px`}
-    ) {
+  background: ${theme.backgroundGradient};
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
     flex-flow: column;
   }
 `;

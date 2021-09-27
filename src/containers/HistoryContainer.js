@@ -10,6 +10,7 @@ import { chainList } from "../constants/chainList";
 import { reduceTokenMobile } from "../util/reduceToken";
 import { NetworkContext } from "../contexts/NetworkContext";
 import Layout from "../components/layout/Layout";
+import theme from "../styles/theme";
 
 const ContentContainer = styled.div`
   position: relative;
@@ -21,17 +22,10 @@ const ContentContainer = styled.div`
   padding: 20px 20px;
   width: 100%;
   border-radius: 24px;
-  box-shadow: 0px 4px 56px #8383833d;
-  background: transparent
-    radial-gradient(
-      closest-side at 31% -64%,
-      #2b237c 0%,
-      #251c72 31%,
-      #0f054c 100%
-    )
-    0% 0% no-repeat padding-box;
+  box-shadow: ${theme.boxshadowLogin};
+  background: ${theme.backgroundGradient};
   opacity: 1;
-  color: #ffffff;
+  color: ${({ theme: { colors } }) => colors.white};
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     margin-top: 10%;
@@ -70,7 +64,7 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.span`
-  font: normal normal bold 32px/38px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   letter-spacing: 0px;
   color: #ffffff;
   text-transform: capitalize;

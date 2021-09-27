@@ -69,9 +69,9 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.span`
-  font: normal normal bold 32px/38px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   letter-spacing: 0px;
-  color: #ffffff;
+  color: ${({ theme: { colors } }) => colors.white};
   text-transform: capitalize;
 `;
 
@@ -82,18 +82,11 @@ const FormContainer = styled.div`
   width: 100%;
   padding: 20px 20px;
   border-radius: 24px;
-  box-shadow: 0px 4px 56px #8383833d;
+  box-shadow: ${theme.boxshadowLogin};
   align-items: center;
   justify-content: center;
   opacity: 1;
-  background: transparent
-    radial-gradient(
-      closest-side at 31% -64%,
-      #2b237c 0%,
-      #251c72 31%,
-      #0f054c 100%
-    )
-    0% 0% no-repeat padding-box;
+  background: ${theme.backgroundGradient};
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     flex-flow: column;

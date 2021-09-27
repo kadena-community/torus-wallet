@@ -43,7 +43,15 @@ export const theme = {
         #251c72 31%,
         #0f054c 100%
       )
-      0% 0% no-repeat padding-box !important;`,
+      0% 0% no-repeat padding-box !important`,
+  backgroundMarkedGradient: `transparent
+      radial-gradient(
+        closest-side at 31% 64%,
+        #2b237c 0%,
+        #251c72 31%,
+        #0f054c 100%
+      )
+      0% 0% no-repeat padding-box`,
 
   boxshadow: "0px 2px 6px #0000001A",
   boxshadowLogin: " 0px 4px 56px #8383833D",
