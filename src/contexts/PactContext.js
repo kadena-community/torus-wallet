@@ -40,12 +40,13 @@ export const PactProvider = (props) => {
             chainId,
             GAS_PRICE,
             GAS_LIMIT,
-            TTL,
-            creationTime()
+            creationTime(),
+            TTL
           ),
         },
         host(chainId)
       );
+
       if (data.result.status === "success") {
         //account exists
         //return {account: string, guard:obj, balance: decimal}
@@ -66,7 +67,6 @@ export const PactProvider = (props) => {
     try {
       //get balance for all 20 chains
       const balances = [];
-
       for (let i = 0; i < 20; i++) {
         const chainId = i.toString();
         const acctDetails = await getAcctDetails(
@@ -377,10 +377,17 @@ export const PactProvider = (props) => {
     try {
       // const accountPubKey = getPubFromPriv(accountPrivKey);
       let chainBalances = {};
+
       for (let i = 0; i < 20; i++) {
-        if (i.toString() === chainId) continue;
-        let details = await getAcctDetails(tokenAddress, account, i.toString());
-        chainBalances[i.toString()] = details.balance;
+        if (i.toString() !== chainId) {
+          await sleepPromise(1000);
+          let details = await getAcctDetails(
+            tokenAddress,
+            account,
+            i.toString()
+          );
+          chainBalances[i.toString()] = details.balance;
+        }
       }
       var sorted = [];
       for (var cid in chainBalances) {

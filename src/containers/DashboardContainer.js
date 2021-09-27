@@ -280,15 +280,6 @@ function DashboardContainer(props) {
                     </ChainBalanceContainer>
                   );
                 })}
-                {/*
-                        <ChainBalanceContainer>
-                          <ChainName>Chain 0</ChainName>
-                          <Item>1233333.8888</Item>
-                        </ChainBalanceContainer>
-                        <ChainBalanceContainer>
-                          <ChainName>Chain 1</ChainName>
-                          <Item>3.00</Item>
-                        </ChainBalanceContainer> */}
               </Popup>
 
               <SubTitle className="mobile-none">
