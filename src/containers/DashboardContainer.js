@@ -55,7 +55,7 @@ const KeyContainer = styled.div`
   }
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobileSmallPixel + 1}px`}) {
-    margin-top: 10%;
+    margin-top: 0px;
     margin-bottom: 16px;
   }
 `;
@@ -161,11 +161,10 @@ const CurrencyBalance = styled.span`
   }
 `;
 const CurrencyBalanceTokenName = styled.span`
-  font: ${({ theme: { macroFont } }) => macroFont.mediumRegular};
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   letter-spacing: 0px;
   color: ${({ theme: { colors } }) => colors.white};
   opacity: 1;
-  vertical-align: middle;
   margin-left: 5px;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {

@@ -24,7 +24,7 @@ const HeaderContainer = styled.div`
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobileSmallPixel + 1}px`}) {
-    margin: 25px 25px;
+    margin: 25px 25px 0 25px;
   }
 `;
 

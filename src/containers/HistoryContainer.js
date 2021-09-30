@@ -79,7 +79,7 @@ const HistoryContainer = () => {
 
   useEffect(() => {
     pact.getTransferList(selectedChain);
-  }, [selectedChain]);
+  }, [selectedChain, pact.confirmResponseTransfer]);
 
   return (
     <Layout>
@@ -123,26 +123,28 @@ const HistoryContainer = () => {
                 <Grid.Column>No Transfer found</Grid.Column>
               </Grid.Row>
             ) : (
-              Object.values(pact.txList).map((tx, index) => (
-                <Grid.Row
-                  columns="3"
-                  key={index}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    window.open(
-                      `https://explorer.chainweb.com/${network.name}/tx/${tx?.reqKey}`,
-                      "_blank",
-                      "noopener,noreferrer"
-                    );
-                  }}
-                >
-                  <Grid.Column>{tx?.txId}</Grid.Column>
-                  <Grid.Column>
-                    {reduceTokenMobile(tx?.events[1]?.params[1])}
-                  </Grid.Column>
-                  <Grid.Column>{`${tx?.events[1]?.params[2]} KDA`}</Grid.Column>
-                </Grid.Row>
-              ))
+              Object.values(pact.txList)
+                .sort((a, b) => a?.txId - b?.txId)
+                .map((tx, index) => (
+                  <Grid.Row
+                    columns="3"
+                    key={index}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      window.open(
+                        `https://explorer.chainweb.com/${network.name}/tx/${tx?.reqKey}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }}
+                  >
+                    <Grid.Column>{tx?.txId}</Grid.Column>
+                    <Grid.Column>
+                      {reduceTokenMobile(tx?.events[1]?.params[1])}
+                    </Grid.Column>
+                    <Grid.Column>{`${tx?.events[1]?.params[2]} KDA`}</Grid.Column>
+                  </Grid.Row>
+                ))
             )}
           </Grid>
         </PartialScrollableScrollSection>

@@ -68,3 +68,49 @@
   opacity: 0.8;
   cursor: pointer;
 }
+
+.swal-icon--success__ring {
+  border-color: #a5dc86;
+}
+
+.swal-icon--success__hide-corners {
+  width: 0px;
+  height: 0px;
+  background-color: transparent;
+}
+
+/* #a5dc86 */
+
+.swal-icon--success:after,
+.swal-icon--success:before {
+  width: 70px;
+  background: transparent
+    radial-gradient(
+      closest-side at 31% -64%,
+      #2b237c 0%,
+      #251c72 31%,
+      #0f054c 100%
+    )
+    0% 0% no-repeat padding-box;
+}
+
+.swal-icon--error {
+  border-color: #db2828;
+}
+
+.swal-icon--error__line {
+  background-color: #db2828;
+}
+
+.swal-icon--error:after,
+.swal-icon--error:before {
+  width: 70px;
+  background: transparent
+    radial-gradient(
+      closest-side at 31% -64%,
+      #2b237c 0%,
+      #251c72 31%,
+      #0f054c 100%
+    )
+    0% 0% no-repeat padding-box;
+}

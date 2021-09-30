@@ -8,7 +8,8 @@ export const PactContext = createContext(null);
 
 export const PactProvider = (props) => {
   const networkContext = useContext(NetworkContext);
-  const [transferLoading, setTransferLoading] = useState(false);
+  const [confirmResponseTransfer, setConfirmResponseTransfer] = useState(false);
+
   const [txList, setTxList] = useState({});
   // const [account, setAccount] = useState({
   //   account: null,
@@ -24,9 +25,14 @@ export const PactProvider = (props) => {
     `https://${networkContext.network.kadenaServer}/chainweb/0.0/${networkContext.network.networkID}/chain/${chainId}/pact`;
 
   const setReqKeysLocalStorage = (key) => {
-    const reqKeysTx = JSON.parse(localStorage.getItem("reqKeys"));
-    reqKeysTx.push(key);
-    localStorage.setItem(`reqKeys`, JSON.stringify(reqKeysTx));
+    const swapReqKeysLS = JSON.parse(localStorage.getItem("reqKeys"));
+    if (!swapReqKeysLS) {
+      //first saving swapReqKeys in localstorage
+      localStorage.setItem(`reqKeys`, JSON.stringify([key]));
+    } else {
+      swapReqKeysLS.push(key);
+      localStorage.setItem(`reqKeys`, JSON.stringify(swapReqKeysLS));
+    }
   };
   const getAcctDetails = async (tokenAddress, acct, chainId) => {
     try {
@@ -83,7 +89,9 @@ export const PactProvider = (props) => {
       return balances;
     } catch (e) {
       console.log(e);
-      return swal("GET BALANCE FAILED: NETWORK ERROR");
+      return swal("GET BALANCE FAILED: NETWORK ERROR", {
+        icon: "error",
+      });
     }
   };
 
@@ -106,15 +114,20 @@ export const PactProvider = (props) => {
     // while (time > 0) {
     // await wait(5000);
     var reqKeyList = JSON.parse(localStorage.getItem("reqKeys"));
-    let tx = await Pact.fetch.poll(
-      { requestKeys: Object.values(reqKeyList) },
-      host(`${chainId}`)
-    );
-    if (Object.keys(tx).length !== 0) {
-      setTxList(tx);
+    if (reqKeyList) {
+      let tx = await Pact.fetch.poll(
+        { requestKeys: Object.values(reqKeyList) },
+        host(`${chainId}`)
+      );
+      if (Object.keys(tx).length !== 0) {
+        setTxList(tx);
+      } else {
+        setTxList("NO_TX_FOUND");
+      }
     } else {
       setTxList("NO_TX_FOUND");
     }
+
     // Object.values(reqKeyList).map(async (reqKey) => {
 
     // });
@@ -144,11 +157,12 @@ export const PactProvider = (props) => {
     if (pollRes[reqKey]) {
       return pollRes[reqKey];
     } else {
-      setTransferLoading(false);
-
       return swal(
         "POLL FAILED:",
-        " Please try again. Note that the transaction specified may not exist on target chain"
+        " Please try again. Note that the transaction specified may not exist on target chain",
+        {
+          icon: "error",
+        }
       );
     }
   };
@@ -185,6 +199,11 @@ export const PactProvider = (props) => {
     chainId,
     guard
   ) => {
+    swal("TRANSFER IN PROCESS:", "The transfer will take a few minutes", {
+      icon: "info",
+      timer: 5000,
+    });
+    setConfirmResponseTransfer(false);
     try {
       const fromAcctPubKey = getPubFromPriv(fromAcctPrivKey);
       const res = await Pact.fetch.send(
@@ -232,22 +251,25 @@ export const PactProvider = (props) => {
       const reqKey = res.requestKeys[0];
       const pollRes = await pollTxRes(reqKey, host(chainId));
       if (pollRes.result.status === "success") {
-        setTransferLoading(false);
         setReqKeysLocalStorage(reqKey);
+        setConfirmResponseTransfer(true);
         return swal(
           `TRANSFER SUCCESS:`,
-          ` from ${fromAcct} to ${toAcct} for ${amount} ${tokenAddress} on chain ${chainId}`
+          ` from ${fromAcct} to ${toAcct} for ${amount} ${tokenAddress} on chain ${chainId}`,
+          {
+            icon: "success",
+          }
         );
       } else {
-        setTransferLoading(false);
-
-        return swal("CANNOT PROCESS TRANSFER: invalid blockchain tx");
+        return swal("CANNOT PROCESS TRANSFER: invalid blockchain tx", {
+          icon: "error",
+        });
       }
     } catch (e) {
-      setTransferLoading(false);
-
       console.log(e);
-      return swal("CANNOT PROCESS TRANSFER: network error");
+      return swal("CANNOT PROCESS TRANSFER: network error", {
+        icon: "error",
+      });
     }
   };
 
@@ -259,6 +281,15 @@ export const PactProvider = (props) => {
     fromChain,
     toChain
   ) => {
+    setConfirmResponseTransfer(false);
+    swal(
+      "TRANSFER SAME CHAIN IN PROCESS",
+      `Trasfering ${amount} KDA by chain ${fromChain} to ${toChain}`,
+      {
+        icon: "info",
+        timer: 5000,
+      }
+    );
     try {
       const accountPubKey = getPubFromPriv(accountPrivKey);
       const burn = await Pact.fetch.send(
@@ -334,33 +365,38 @@ export const PactProvider = (props) => {
         const mintPollRes = await pollTxRes(mintReqKey, host(toChain));
         if (mintPollRes.result.status === "success") {
           setReqKeysLocalStorage(mintReqKey);
-
+          setConfirmResponseTransfer(true);
           return swal(
             `CROSS-CHAIN TRANSFER SUCCESS:`,
-            `${amount} ${tokenAddress} transfered from chain ${fromChain} to ${toChain} for account ${account}`
+            `${amount} ${tokenAddress} transfered from chain ${fromChain} to ${toChain} for account ${account}`,
+            {
+              icon: "success",
+            }
           );
         } else {
           //funds were burned on fromChain but not minted on toChain
           //visit https://transfer.chainweb.com/xchain.html and approve the mint with the reqKey
-          setTransferLoading(false);
 
           return swal(
             `PARTIAL CROSS-CHAIN TRANSFER:`,
-            `Funds burned on chain ${fromChain} with reqKey ${reqKey} please mint on chain ${toChain}`
+            `Funds burned on chain ${fromChain} with reqKey ${reqKey} please mint on chain ${toChain}`,
+            {
+              icon: "warning",
+            }
           );
         }
       } else {
         //burn did not work
-        setTransferLoading(false);
 
         return swal(
           `CANNOT PROCESS CROSS-CHAIN TRANSFER:`,
-          `Cannot send from origin chain ${fromChain}`
+          `Cannot send from origin chain ${fromChain}`,
+          {
+            icon: "error",
+          }
         );
       }
     } catch (e) {
-      setTransferLoading(false);
-
       console.log(e);
       return "CANNOT PROCESS CROSS-CHAIN TRANSFER: Network error";
     }
@@ -418,10 +454,10 @@ export const PactProvider = (props) => {
 
       return `BALANCE FUNDS SUCCESS`;
     } catch (e) {
-      setTransferLoading(false);
-
       console.log(e);
-      return swal("CANNOT PROCESS BALANCE FUNDS:", "Network error");
+      return swal("CANNOT PROCESS BALANCE FUNDS:", "Network error", {
+        icon: "error",
+      });
     }
   };
 
@@ -429,11 +465,11 @@ export const PactProvider = (props) => {
     <PactContext.Provider
       value={{
         txList,
-        transferLoading,
-        setTransferLoading,
         getPubFromPriv,
         getBalance,
         balanceFunds,
+        confirmResponseTransfer,
+        setConfirmResponseTransfer,
         transfer,
         getAcctDetails,
         getTransferList,

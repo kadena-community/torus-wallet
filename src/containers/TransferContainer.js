@@ -111,6 +111,10 @@ const TransferContainer = () => {
   const pact = useContext(PactContext);
   const viewport = useContext(ViewportContext);
 
+  useEffect(() => {
+    handleReset();
+  }, [pact.confirmResponseTransfer]);
+
   const validationSchema = Yup.object().shape({
     toAccount: Yup.string()
       .required("Insert Receiver account")
@@ -160,7 +164,10 @@ const TransferContainer = () => {
             } else {
               return swal(
                 `CANNOT PROCESS TRANSFER:`,
-                `The login account and confirmation account must be the same`
+                `The login account and confirmation account must be the same`,
+                {
+                  icon: "error",
+                }
               );
             }
           } else {
@@ -193,8 +200,6 @@ const TransferContainer = () => {
     amount,
     chainId
   ) => {
-    pact.setTransferLoading(true);
-
     try {
       var fromDetails = await pact.getAcctDetails(
         tokenAddress,
@@ -203,18 +208,22 @@ const TransferContainer = () => {
       );
       if (!fromDetails.account) {
         //not enough funds on fromAcct account on this chain
-        pact.setTransferLoading(false);
 
         return swal(
-          `CANNOT PROCESS TRANSFER: ${fromAcct} does not exist on chain ${chainId}`
+          `CANNOT PROCESS TRANSFER: ${fromAcct} does not exist on chain ${chainId}`,
+          {
+            icon: "error",
+          }
         );
       }
       if (fromDetails.balance < amount) {
         //not enough funds on fromAcct account on this chain
-        pact.setTransferLoading(false);
 
         return swal(
-          `CANNOT PROCESS TRANSFER: not enough funds on chain ${chainId}`
+          `CANNOT PROCESS TRANSFER: not enough funds on chain ${chainId}`,
+          {
+            icon: "error",
+          }
         );
       }
       //check if toAcct exists on specified chain
@@ -225,9 +234,10 @@ const TransferContainer = () => {
           //account is a public key account
           //but the public key guard does not match account name public key
           //EXIT function
-          pact.setTransferLoading(false);
 
-          return swal(" non-matching public keys");
+          return swal(" non-matching public keys", {
+            icon: "error",
+          });
         } else {
           //send to this account with this guard
           const res = await pact.transfer(
@@ -244,9 +254,10 @@ const TransferContainer = () => {
       } else if (details === "CANNOT FETCH ACCOUNT: network error") {
         //account fetch failed
         //EXIT function
-        pact.setTransferLoading(false);
 
-        return swal("CANNOT PROCESS TRANSFER: account not fetched");
+        return swal("CANNOT PROCESS TRANSFER: account not fetched", {
+          icon: "error",
+        });
       } else {
         //toAcct does not yet exist
         if (checkKey(toAcct)) {
@@ -265,22 +276,22 @@ const TransferContainer = () => {
             chainId,
             { pred: "keys-all", keys: [toAcct] }
           );
-          handleReset();
           return res;
         } else {
           //toAcct is totally invalid
           //EXIT function
-          pact.setTransferLoading(false);
-
-          return swal("CANNOT PROCESS TRANSFER: new account not a public key");
+          return swal("CANNOT PROCESS TRANSFER: new account not a public key", {
+            icon: "error",
+          });
         }
       }
     } catch (e) {
       //most likely a formatting or rate limiting error
       console.log(e);
-      pact.setTransferLoading(false);
 
-      return swal("CANNOT PROCESS TRANSFER: network error");
+      return swal("CANNOT PROCESS TRANSFER: network error", {
+        icon: "error",
+      });
     }
   };
 
@@ -293,7 +304,6 @@ const TransferContainer = () => {
     targetChainId
   ) => {
     // OR add A Notification!
-    pact.setTransferLoading(true);
     try {
       var ownDetails = await pact.getAcctDetails(
         tokenAddress,
@@ -313,11 +323,13 @@ const TransferContainer = () => {
         );
         if (fundedXChain !== "BALANCE FUNDS SUCCESS") {
           //was not able to move funds across different chains
-          pact.setTransferLoading(false);
 
           return swal(
             `CANNOT PROCESS TRANSFER:`,
-            `Not enough funds on chain ${targetChainId}`
+            `Not enough funds on chain ${targetChainId}`,
+            {
+              icon: "error",
+            }
           );
         }
       }
@@ -334,9 +346,10 @@ const TransferContainer = () => {
           //account is a public key account
           //but the public key guard does not match account name public key
           //EXIT function
-          pact.setTransferLoading(false);
 
-          return swal("CANNOT PROCESS TRANSFER:", "Non-matching public keys");
+          return swal("CANNOT PROCESS TRANSFER:", "Non-matching public keys", {
+            icon: "error",
+          });
         } else {
           //send to this account with this guard
           const res = await pact.transfer(
@@ -353,9 +366,10 @@ const TransferContainer = () => {
       } else if (details === "CANNOT FETCH ACCOUNT: network error") {
         //account fetch failed
         //EXIT function
-        pact.setTransferLoading(false);
 
-        return swal("CANNOT PROCESS TRANSFER:", "Account not fetched");
+        return swal("CANNOT PROCESS TRANSFER:", "Account not fetched", {
+          icon: "error",
+        });
       } else {
         //toAcct does not yet exist
         if (checkKey(toAcct)) {
@@ -378,7 +392,6 @@ const TransferContainer = () => {
         } else {
           //toAcct is totally invalid
           //EXIT function
-          pact.setTransferLoading(false);
 
           return swal(
             "CANNOT PROCESS TRANSFER:",
@@ -388,10 +401,11 @@ const TransferContainer = () => {
       }
     } catch (e) {
       //most likely a formatting or rate limiting error
-      pact.setTransferLoading(false);
 
       console.log(e);
-      return swal("CANNOT PROCESS TRANSFER:", "Network error");
+      return swal("CANNOT PROCESS TRANSFER:", "Network error", {
+        icon: "error",
+      });
     }
   };
 
@@ -418,10 +432,6 @@ const TransferContainer = () => {
   return (
     <Layout
       loader={[
-        <CustomLoader
-          loader={pact.transferLoading}
-          message="Transfer in progress. It will take a few minutes.."
-        />,
         <CustomLoader loader={auth.connectingLoading} message="Connecting.." />,
       ]}
     >
