@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useContext } from "react/cjs/react.development";
 import { Dropdown, Grid } from "semantic-ui-react";
 import styled from "styled-components";
+import Pact from "pact-lang-api";
+
 import { AuthContext } from "../contexts/AuthContext";
 
 import { PactContext } from "../contexts/PactContext";
@@ -78,8 +80,27 @@ const HistoryContainer = () => {
   const [selectedChain, setSelectedChain] = useState(0);
 
   useEffect(() => {
-    pact.getTransferList(selectedChain);
+    getTransferList(selectedChain);
   }, [selectedChain, pact.confirmResponseTransfer]);
+
+  const getTransferList = async (chainId) => {
+    pact.setTxList({});
+    var reqKeyList = JSON.parse(localStorage.getItem("reqKeys"));
+    if (reqKeyList) {
+      let tx = await Pact.fetch.poll(
+        { requestKeys: Object.values(reqKeyList) },
+        pact.host(`${chainId}`)
+      );
+      if (Object.keys(tx).length !== 0) {
+        const search = Object.values(tx).some(
+          (t) => t?.events[1]?.params[0] === auth?.user?.publicKey
+        );
+
+        if (search) pact.setTxList(tx);
+        else pact.setTxList("NO_TX_FOUND");
+      } else pact.setTxList("NO_TX_FOUND");
+    } else pact.setTxList("NO_TX_FOUND");
+  };
 
   return (
     <Layout>
@@ -125,6 +146,9 @@ const HistoryContainer = () => {
             ) : (
               Object.values(pact.txList)
                 .sort((a, b) => a?.txId - b?.txId)
+                .filter(
+                  (tx) => tx?.events[1]?.params[0] === auth.user?.publicKey
+                )
                 .map((tx, index) => (
                   <Grid.Row
                     columns="3"

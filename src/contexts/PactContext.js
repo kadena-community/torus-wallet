@@ -107,32 +107,6 @@ export const PactProvider = (props) => {
   //   });
   // };
 
-  const getTransferList = async (chainId) => {
-    setTxList({});
-    // var time = 240;
-    // var pollRes = [];
-    // while (time > 0) {
-    // await wait(5000);
-    var reqKeyList = JSON.parse(localStorage.getItem("reqKeys"));
-    if (reqKeyList) {
-      let tx = await Pact.fetch.poll(
-        { requestKeys: Object.values(reqKeyList) },
-        host(`${chainId}`)
-      );
-      if (Object.keys(tx).length !== 0) {
-        setTxList(tx);
-      } else {
-        setTxList("NO_TX_FOUND");
-      }
-    } else {
-      setTxList("NO_TX_FOUND");
-    }
-
-    // Object.values(reqKeyList).map(async (reqKey) => {
-
-    // });
-  };
-
   const pollTxRes = async (reqKey, host) => {
     //check kadena tx status until we get a response (success or fail
     //  or 480 seconds has gone by
@@ -464,7 +438,9 @@ export const PactProvider = (props) => {
   return (
     <PactContext.Provider
       value={{
+        host,
         txList,
+        setTxList,
         getPubFromPriv,
         getBalance,
         balanceFunds,
@@ -472,7 +448,6 @@ export const PactProvider = (props) => {
         setConfirmResponseTransfer,
         transfer,
         getAcctDetails,
-        getTransferList,
       }}
     >
       {props.children}

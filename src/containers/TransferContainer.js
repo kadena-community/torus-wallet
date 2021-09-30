@@ -182,8 +182,6 @@ const TransferContainer = () => {
           }
         })
         .catch((e) => console.log(e));
-      // from : a89643951920b8f272119d0e569c42e12e43bd36a956e33c2ef3876d99bae439
-      // toAccount: 349c010fcbe76248d1111b804c4c9ffb83b525df6685c7eab2e7399cbbdcf5e6
     },
   });
 
