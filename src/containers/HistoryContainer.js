@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useContext } from "react/cjs/react.development";
 import { Dropdown, Grid } from "semantic-ui-react";
 import styled from "styled-components";
+import Pact from "pact-lang-api";
+
 import { AuthContext } from "../contexts/AuthContext";
 
 import { PactContext } from "../contexts/PactContext";
@@ -10,6 +12,7 @@ import { chainList } from "../constants/chainList";
 import { reduceTokenMobile } from "../util/reduceToken";
 import { NetworkContext } from "../contexts/NetworkContext";
 import Layout from "../components/layout/Layout";
+import theme from "../styles/theme";
 
 const ContentContainer = styled.div`
   position: relative;
@@ -21,17 +24,10 @@ const ContentContainer = styled.div`
   padding: 20px 20px;
   width: 100%;
   border-radius: 24px;
-  box-shadow: 0px 4px 56px #8383833d;
-  background: transparent
-    radial-gradient(
-      closest-side at 31% -64%,
-      #2b237c 0%,
-      #251c72 31%,
-      #0f054c 100%
-    )
-    0% 0% no-repeat padding-box;
+  box-shadow: ${theme.boxshadowLogin};
+  background: ${theme.backgroundGradient};
   opacity: 1;
-  color: #ffffff;
+  color: ${({ theme: { colors } }) => colors.white};
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     margin-top: 10%;
@@ -70,7 +66,7 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.span`
-  font: normal normal bold 32px/38px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   letter-spacing: 0px;
   color: #ffffff;
   text-transform: capitalize;
@@ -84,8 +80,27 @@ const HistoryContainer = () => {
   const [selectedChain, setSelectedChain] = useState(0);
 
   useEffect(() => {
-    pact.getTransferList(selectedChain);
-  }, [selectedChain]);
+    getTransferList(selectedChain);
+  }, [selectedChain, pact.confirmResponseTransfer]);
+
+  const getTransferList = async (chainId) => {
+    pact.setTxList({});
+    var reqKeyList = JSON.parse(localStorage.getItem("reqKeys"));
+    if (reqKeyList) {
+      let tx = await Pact.fetch.poll(
+        { requestKeys: Object.values(reqKeyList) },
+        pact.host(`${chainId}`)
+      );
+      if (Object.keys(tx).length !== 0) {
+        const search = Object.values(tx).some(
+          (t) => t?.events[1]?.params[0] === auth?.user?.publicKey
+        );
+
+        if (search) pact.setTxList(tx);
+        else pact.setTxList("NO_TX_FOUND");
+      } else pact.setTxList("NO_TX_FOUND");
+    } else pact.setTxList("NO_TX_FOUND");
+  };
 
   return (
     <Layout>
@@ -129,25 +144,31 @@ const HistoryContainer = () => {
                 <Grid.Column>No Transfer found</Grid.Column>
               </Grid.Row>
             ) : (
-              Object.values(pact.txList).map((tx) => (
-                <Grid.Row
-                  columns="3"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    window.open(
-                      `https://explorer.chainweb.com/${network.name}/tx/${tx?.reqKey}`,
-                      "_blank",
-                      "noopener,noreferrer"
-                    );
-                  }}
-                >
-                  <Grid.Column>{tx?.txId}</Grid.Column>
-                  <Grid.Column>
-                    {reduceTokenMobile(tx?.events[1]?.params[1])}
-                  </Grid.Column>
-                  <Grid.Column>{`${tx?.events[1]?.params[2]} KDA`}</Grid.Column>
-                </Grid.Row>
-              ))
+              Object.values(pact.txList)
+                .sort((a, b) => a?.txId - b?.txId)
+                .filter(
+                  (tx) => tx?.events[1]?.params[0] === auth.user?.publicKey
+                )
+                .map((tx, index) => (
+                  <Grid.Row
+                    columns="3"
+                    key={index}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      window.open(
+                        `https://explorer.chainweb.com/${network.name}/tx/${tx?.reqKey}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }}
+                  >
+                    <Grid.Column>{tx?.txId}</Grid.Column>
+                    <Grid.Column>
+                      {reduceTokenMobile(tx?.events[1]?.params[1])}
+                    </Grid.Column>
+                    <Grid.Column>{`${tx?.events[1]?.params[2]} KDA`}</Grid.Column>
+                  </Grid.Row>
+                ))
             )}
           </Grid>
         </PartialScrollableScrollSection>

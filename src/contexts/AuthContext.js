@@ -48,7 +48,7 @@ export const AuthProvider = (props) => {
       }
     }
     getBalanceWrapper();
-  }, [pact.transferLoading]);
+  }, [pact.confirmResponseTransfer]);
 
   const login = async () => {
     setLoading(true);

@@ -25,9 +25,9 @@ const LabelContainer = styled.div`
 
 const Label = styled.span`
   color: ${({ disabled, theme: { colors } }) =>
-    disabled ? `${colors.primaryColor}33` : colors.primaryColor};
+    disabled ? `${colors.white}33` : colors.white};
   font-size: 24px;
-  font-family: "roboto-bold";
+  font-family: ${({ theme: { fontFamily } }) => fontFamily.bold};
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobileSmallPixel + 1}px`}) {
@@ -36,15 +36,15 @@ const Label = styled.span`
 `;
 
 const Error = styled.div.attrs({ capitalize: true })`
-  color: #db2828;
+  color: ${({ theme: { colors } }) => colors.error};
   font-size: 14px;
-  font-family: "roboto-bold";
+  font-family: ${({ theme: { fontFamily } }) => fontFamily.bold};
   margin-top: 3px;
 `;
 
 const ReadOnlyValue = styled.span`
-  font-family: "roboto-regular";
-  color: ${({ theme: { colors } }) => colors.primaryColor};
+  font-family: ${({ theme: { fontFamily } }) => fontFamily.regular};
+  color: ${({ theme: { colors } }) => colors.white};
   font-size: 14px;
   width: 100%;
 `;

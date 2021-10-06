@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./styles/alert.css";
-import "./styles/sidebar.css";
 import "./index.css";
 import "./styles/styles.scss";
 import App from "./App";
