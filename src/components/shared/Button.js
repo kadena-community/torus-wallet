@@ -46,6 +46,7 @@ const Button = ({
   color,
   fontSize,
   size,
+  type,
   children,
   onClick,
   loading,
@@ -64,6 +65,7 @@ const Button = ({
       onClick={onClick}
       loading={loading}
       border={border}
+      type={type}
       boxshadow={boxshadow}
       hover={hover}
       inverted={inverted}

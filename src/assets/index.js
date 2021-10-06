@@ -8,3 +8,4 @@ export { ReactComponent as GoogleIcon } from "./images/google_logo.svg";
 export { ReactComponent as HamburgerIcon } from "./images/hamburger.svg";
 export { ReactComponent as KadenaBlueIcon } from "./images/k_blu.svg";
 export { ReactComponent as KadenaTorusIcon } from "./images/kadena-torus.svg";
+export { ReactComponent as SuccessfullIcon } from "./images/successful-circle.svg";

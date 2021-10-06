@@ -3,11 +3,16 @@ import Pact from "pact-lang-api";
 import { NetworkContext } from "./NetworkContext";
 import swal from "sweetalert";
 import { formatAmount } from "../util/format-helpers";
+import SuccessTransactionModal from "../components/modals/SuccessTransactionModal";
+import { ModalContext } from "./ModalContext";
+import { Button } from "semantic-ui-react";
 
 export const PactContext = createContext(null);
 
 export const PactProvider = (props) => {
   const networkContext = useContext(NetworkContext);
+  const modalContext = useContext(ModalContext);
+
   const [confirmResponseTransfer, setConfirmResponseTransfer] = useState(false);
 
   const [txList, setTxList] = useState({});
@@ -95,6 +100,10 @@ export const PactProvider = (props) => {
     }
   };
 
+  const closeModal = () => {
+    modalContext.closeModal();
+  };
+
   const sleepPromise = async (timeout) => {
     return new Promise((resolve) => {
       setTimeout(resolve, timeout);
@@ -164,6 +173,28 @@ export const PactProvider = (props) => {
     networkId,
   });
 
+  const viewSuccessModal = (
+    fromAcct,
+    toAcct,
+    amount,
+    senderChainId,
+    receiverChainId,
+    onClose
+  ) => {
+    return modalContext.openModal({
+      content: (
+        <SuccessTransactionModal
+          fromAccount={fromAcct}
+          toAccount={toAcct}
+          amount={amount}
+          senderChainId={senderChainId}
+          receiverChainId={receiverChainId}
+          onClose={onClose}
+        />
+      ),
+    });
+  };
+
   const transfer = async (
     tokenAddress,
     fromAcct,
@@ -227,12 +258,13 @@ export const PactProvider = (props) => {
       if (pollRes.result.status === "success") {
         setReqKeysLocalStorage(reqKey);
         setConfirmResponseTransfer(true);
-        return swal(
-          `TRANSFER SUCCESS:`,
-          ` from ${fromAcct} to ${toAcct} for ${amount} ${tokenAddress} on chain ${chainId}`,
-          {
-            icon: "success",
-          }
+        viewSuccessModal(
+          fromAcct,
+          toAcct,
+          amount,
+          chainId,
+          chainId,
+          closeModal
         );
       } else {
         return swal("CANNOT PROCESS TRANSFER: invalid blockchain tx", {
@@ -450,7 +482,7 @@ export const PactProvider = (props) => {
         getAcctDetails,
       }}
     >
-      {props.children}
+      <>{props.children}</>
     </PactContext.Provider>
   );
 };

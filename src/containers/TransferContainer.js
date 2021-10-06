@@ -581,7 +581,9 @@ const TransferContainer = () => {
                 error={touched.amount && !!errors.amount}
               ></SUIInput>
             </InputWithLabel>
-            <Button onClick={handleSubmit}>Transfer</Button>
+            <Button type="submit" onClick={handleSubmit}>
+              Transfer
+            </Button>
           </FormContainer>
         </KeyContainer>
       </ContentContainer>
