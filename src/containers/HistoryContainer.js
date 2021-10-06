@@ -110,10 +110,10 @@ const HistoryContainer = () => {
         </TitleContainer>
         <Dropdown
           style={{
-            fontFamily: "roboto-bold",
             fontSize: 18,
             minWidth: "2.5em",
             marginBottom: 16,
+            border: "2px solid #ffffff",
           }}
           selection
           value={selectedChain}
