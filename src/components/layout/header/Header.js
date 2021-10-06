@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Menu, Sidebar } from "semantic-ui-react";
+import { Divider, Menu, Sidebar } from "semantic-ui-react";
 import styled from "styled-components/macro";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { MAINNET, TESTNET } from "../../../contexts/NetworkContext";
@@ -84,6 +84,7 @@ const RightContainer = styled.div`
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     flex-flow: column;
+    align-items: flex-end;
     & > *:first-child {
       margin-bottom: 10px;
       margin-right: 0px;
@@ -144,6 +145,7 @@ const Header = () => {
               onHide={() => setSideBarIsVisible(false)}
               visible={sideBarIsVisible}
             >
+              <Divider/>
               {Object.values(MENU_LIST_COMPONENT).map((menu) => (
                 <Menu.Item
                   as="a"
@@ -154,6 +156,12 @@ const Header = () => {
                   {menu.name}
                 </Menu.Item>
               ))}
+              <Divider/>
+              <Menu.Item
+                onClick={() => auth.logout()}
+              >
+                Log Out
+              </Menu.Item>
             </Sidebar>
           </>
         ) : (
@@ -180,7 +188,7 @@ const Header = () => {
           />
         </ToggleContainer>
         {viewport.isMobile ? (
-          <Item style={{ marginRight: "70px" }}>
+          <Item>
             <Label
               style={{
                 marginRight: "15px",
@@ -190,19 +198,14 @@ const Header = () => {
             >
               {auth.user.username}
             </Label>
-            <CustomPopup
-              trigger={<PowerIcon />}
-              position="bottom right"
-              onClick={() => auth.logout()}
-              text="Log out"
-            />
+            
           </Item>
         ) : (
           <Item>
             <CustomPopup
               trigger={
                 <Label
-                  style={{
+                    style={{
                     color: theme.colors.white,
                     fontSize: 16,
                     alignItems: "center",
