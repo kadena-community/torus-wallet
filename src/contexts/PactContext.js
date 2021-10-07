@@ -5,7 +5,6 @@ import swal from "sweetalert";
 import { formatAmount } from "../util/format-helpers";
 import SuccessTransactionModal from "../components/modals/SuccessTransactionModal";
 import { ModalContext } from "./ModalContext";
-import { Button } from "semantic-ui-react";
 
 export const PactContext = createContext(null);
 

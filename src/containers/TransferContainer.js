@@ -8,7 +8,6 @@ import { useFormik } from "formik";
 import swal from "sweetalert";
 import { AuthContext } from "../contexts/AuthContext";
 import { PactContext } from "../contexts/PactContext";
-import { ViewportContext } from "../contexts/ViewportContext";
 
 import Button from "../components/shared/Button";
 import InputWithLabel from "../components/shared/InputWithLabel";
@@ -23,7 +22,7 @@ import CustomLoader from "../components/shared/CustomLoader";
 const ContentContainer = styled.div`
   position: relative;
   max-height: 90vh;
-  max-width: 650px;
+  max-width: 900px;
   display: flex;
   flex-flow: column;
   padding: 10px 10px;
@@ -109,7 +108,6 @@ const FormContainer = styled.div`
 const TransferContainer = () => {
   const auth = useContext(AuthContext);
   const pact = useContext(PactContext);
-  const viewport = useContext(ViewportContext);
 
   useEffect(() => {
     handleReset();
@@ -491,19 +489,6 @@ const TransferContainer = () => {
                     value={values.receiverChain}
                   />
                 }
-                style={
-                  window.innerWidth === theme.mediaQueries.mobileSmallPixel
-                    ? {
-                        border: "1px solid #ffffff",
-                        borderRadius: "5px",
-                        fontSize: 12,
-                        minWidth: "4.5em",
-                      }
-                    : {
-                        border: "1px solid #ffffff",
-                        borderRadius: "5px",
-                      }
-                }
                 labelPosition="right"
                 placeholder="Insert Public Key"
                 size="big"
@@ -523,19 +508,6 @@ const TransferContainer = () => {
                 id="amount"
                 placeholder="Insert Amount"
                 size="big"
-                style={
-                  window.innerWidth === theme.mediaQueries.mobileSmallPixel
-                    ? {
-                        border: "1px solid #ffffff",
-                        borderRadius: "5px",
-                        fontSize: 12,
-                        minWidth: "4.5em",
-                      }
-                    : {
-                        border: "1px solid #ffffff",
-                        borderRadius: "5px",
-                      }
-                }
                 // disabled={disabled}
                 value={values.amount}
                 onChange={handleChange}

@@ -109,6 +109,7 @@ export default createGlobalStyle`
       `${mediaQueries.mobileSmallPixel}px`}) {
         font-size: 12px;
   }
+}
 
   .receiver-dropdown.ui.dropdown{
     font-size: 18px;
@@ -123,10 +124,20 @@ export default createGlobalStyle`
 
     @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel}px`}) {
-        min-width: 2.5em !important;
+        min-width: 7.5em !important;
     }
 
   }
+
+  .ui.input {
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel}px`}) {
+        font-size: 12px !important;
+        min-width: 4.5em !important;
+    }
+}
 
 
 `;
