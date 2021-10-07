@@ -9,10 +9,10 @@ export const MENU_LIST_COMPONENT = {
     name: "Home",
     route: ROUTE_DASHBOARD,
   },
-  TOP_UP: {
+  /* TOP_UP: {
     name: "Top up",
     route: "/",
-  },
+  }, */
   TRANSFER: {
     name: "Transfer",
     route: ROUTE_TRANSFER,
