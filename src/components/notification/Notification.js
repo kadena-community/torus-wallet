@@ -42,7 +42,7 @@ const Container = styled.div`
 const Notification = () => {
   return (
     <Container>
-      <ToastContainer />
+      <ToastContainer theme="colored"/>
     </Container>
   );
 };
