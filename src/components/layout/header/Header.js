@@ -1,16 +1,18 @@
 import React, { useContext, useState } from "react";
-import { Menu, Sidebar } from "semantic-ui-react";
+import { Divider, Menu, Sidebar } from "semantic-ui-react";
 import styled from "styled-components/macro";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { MAINNET, TESTNET } from "../../../contexts/NetworkContext";
 
-import { DropdownIcon, HamburgerIcon, PowerIcon } from "../../../assets";
+import { DropdownIcon, HamburgerIcon, PowerIcon, CrossIcon } from "../../../assets";
 import ToggleSwitchButton from "../../shared/ToogleSwitchButton";
-import { useHistory } from "react-router";
+import { useHistory, useLocation, useParams } from "react-router";
 import theme from "../../../styles/theme";
 import CustomPopup from "../../shared/CustomPopup";
 import { ViewportContext } from "../../../contexts/ViewportContext";
 import { MENU_LIST_COMPONENT } from "./MenuListComponents";
+import Button  from "../../shared/Button";
+
 
 const HeaderContainer = styled.div`
   position: sticky;
@@ -44,7 +46,6 @@ const LeftContainer = styled.div`
   .custom-sidebar {
     background: ${theme.backgroundGradient};
 
-    -webkit-text-fill-color: ${({ theme: { colors } }) => colors.white};
     text-decoration: none;
     text-transform: capitalize;
     font: 16px ${theme.fontFamily.bold};
@@ -84,6 +85,7 @@ const RightContainer = styled.div`
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     flex-flow: column;
+    align-items: flex-end;
     & > *:first-child {
       margin-bottom: 10px;
       margin-right: 0px;
@@ -92,6 +94,66 @@ const RightContainer = styled.div`
       margin-right: 0px;
     }
   }
+`;
+
+const SideBarContainer = styled.div`
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  padding: 15px;
+`;
+
+const MenuLabelContainer = styled.div`
+  display: flex;
+  flex-flow: row;
+  
+  justify-content: flex-start;
+  width: 100%;
+
+   & > *:not(:last-child) {
+    align-self: center;
+    margin-right: 10px;
+  }
+
+  & > *:last-child {
+    margin-top: 0 !important;
+      align-self: center;
+      margin-right: 0px;
+      position: absolute;
+      right: 10px;
+    }
+`;
+
+const LogOutContainer = styled.div`
+  display: flex;
+  position: absolute;
+  flex-flow: row;
+  align-items: center;
+  justify-content: center;
+  bottom: 25px;
+
+   & > *:not(:last-child) {
+    align-self: center;
+    margin-top: 0 !important;
+    margin-right: 10px;
+  }
+
+  & > *:last-child {
+    margin-top: 0 !important;
+      align-self: center;
+    }
+`;
+
+
+
+const MenuItemsContainer = styled.div`
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  justify-content: center;
+  margin-top: 30px;
 `;
 
 const ToggleContainer = styled.div`
@@ -122,6 +184,8 @@ const Header = () => {
   const history = useHistory();
   const [sideBarIsVisible, setSideBarIsVisible] = useState(false);
 
+  const url = useLocation();
+
   return (
     <HeaderContainer>
       <LeftContainer>
@@ -136,24 +200,51 @@ const Header = () => {
             />
             <Sidebar
               as={Menu}
+              style={{display: "flex", maxWidth: "50%"}}
               animation="overlay"
               direction="left"
               vertical
               className="custom-sidebar"
-              width="thin"
               onHide={() => setSideBarIsVisible(false)}
               visible={sideBarIsVisible}
             >
-              {Object.values(MENU_LIST_COMPONENT).map((menu) => (
-                <Menu.Item
-                  as="a"
-                  onClick={() => {
-                    history.push(menu.route);
-                  }}
-                >
-                  {menu.name}
-                </Menu.Item>
-              ))}
+              <SideBarContainer>
+                <MenuLabelContainer>
+                  <HamburgerIcon
+                    style={{marginTop: "0px"}}
+                    onClick={() => {
+                      setSideBarIsVisible(false);
+                    }}
+                  />
+                  <span style={{color: "#fff"}}>Menu</span>
+                  <CrossIcon
+                    onClick={() => {
+                      setSideBarIsVisible(false);
+                    }}
+                  />
+                </MenuLabelContainer>
+                <MenuItemsContainer>
+                  {Object.values(MENU_LIST_COMPONENT).map((menu) => (
+                    <Button
+                      background= {(url.pathname === menu.route) ?  "#fff" :  "transparent"}
+                      color= {(url.pathname === menu.route) ?  theme.colors.primary :  "#fff"}
+                      border= {(url.pathname === menu.route) ? "" : "none"}
+                      onClick={() => {
+                        history.push(menu.route);
+                      }}
+                    >
+                      {menu.name}
+                    </Button>
+                  ))}
+                </MenuItemsContainer>
+                <hr style={{display: "flex", width: "80%", position:"absolute", bottom: "60px", borderTop: "1px solid #fff"}}/>
+                <LogOutContainer
+                  onClick={() => auth.logout()}>
+                  <PowerIcon/>
+                  <span style={{color: "#fff"}}>Log Out</span>
+
+                </LogOutContainer>
+              </SideBarContainer>
             </Sidebar>
           </>
         ) : (
@@ -180,7 +271,7 @@ const Header = () => {
           />
         </ToggleContainer>
         {viewport.isMobile ? (
-          <Item style={{ marginRight: "70px" }}>
+          <Item>
             <Label
               style={{
                 marginRight: "15px",
@@ -190,19 +281,14 @@ const Header = () => {
             >
               {auth.user.username}
             </Label>
-            <CustomPopup
-              trigger={<PowerIcon />}
-              position="bottom right"
-              onClick={() => auth.logout()}
-              text="Log out"
-            />
+            
           </Item>
         ) : (
           <Item>
             <CustomPopup
               trigger={
                 <Label
-                  style={{
+                    style={{
                     color: theme.colors.white,
                     fontSize: 16,
                     alignItems: "center",

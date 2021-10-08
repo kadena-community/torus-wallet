@@ -5,12 +5,16 @@ import swal from "sweetalert";
 import { formatAmount } from "../util/format-helpers";
 import SuccessTransactionModal from "../components/modals/SuccessTransactionModal";
 import { ModalContext } from "./ModalContext";
+import { NotificationContext, STATUSES } from "./NotificationContext";
+import { toast } from "react-toastify";
+import { Button } from "semantic-ui-react";
 
 export const PactContext = createContext(null);
 
 export const PactProvider = (props) => {
   const networkContext = useContext(NetworkContext);
   const modalContext = useContext(ModalContext);
+  const notificationContext = useContext(NotificationContext);
 
   const [confirmResponseTransfer, setConfirmResponseTransfer] = useState(false);
 
@@ -27,6 +31,10 @@ export const PactProvider = (props) => {
   const creationTime = () => Math.round(new Date().getTime() / 1000) - 15;
   const host = (chainId) =>
     `https://${networkContext.network.kadenaServer}/chainweb/0.0/${networkContext.network.networkID}/chain/${chainId}/pact`;
+  
+  //TO FIX, not working when multiple toasts are there
+  const toastId = React.useRef(null);
+  // const [toastIds, setToastIds] = useState({})
 
   const setReqKeysLocalStorage = (key) => {
     const swapReqKeysLS = JSON.parse(localStorage.getItem("reqKeys"));
@@ -194,6 +202,16 @@ export const PactProvider = (props) => {
     });
   };
 
+  const pollingNotif = (reqKey) => {
+    return (toastId.current = notificationContext.showNotification({
+      title: "TRANSFER IN PROCESS:  The transfer will take a few minutes",
+      message: reqKey,
+      type: STATUSES.INFO,
+      autoClose: 92000,
+      hideProgressBar: false,
+    }));
+  };
+
   const transfer = async (
     tokenAddress,
     fromAcct,
@@ -203,10 +221,6 @@ export const PactProvider = (props) => {
     chainId,
     guard
   ) => {
-    swal("TRANSFER IN PROCESS:", "The transfer will take a few minutes", {
-      icon: "info",
-      timer: 5000,
-    });
     setConfirmResponseTransfer(false);
     try {
       const fromAcctPubKey = getPubFromPriv(fromAcctPrivKey);
@@ -253,8 +267,10 @@ export const PactProvider = (props) => {
         host(chainId)
       );
       const reqKey = res.requestKeys[0];
+      pollingNotif(reqKey);
       const pollRes = await pollTxRes(reqKey, host(chainId));
       if (pollRes.result.status === "success") {
+        await toast.dismiss(toastId.current);
         setReqKeysLocalStorage(reqKey);
         setConfirmResponseTransfer(true);
         viewSuccessModal(
@@ -266,11 +282,13 @@ export const PactProvider = (props) => {
           closeModal
         );
       } else {
+        await toast.dismiss(toastId.current);
         return swal("CANNOT PROCESS TRANSFER: invalid blockchain tx", {
           icon: "error",
         });
       }
     } catch (e) {
+      await toast.dismiss(toastId.current);
       console.log(e);
       return swal("CANNOT PROCESS TRANSFER: network error", {
         icon: "error",
@@ -477,6 +495,7 @@ export const PactProvider = (props) => {
         balanceFunds,
         confirmResponseTransfer,
         setConfirmResponseTransfer,
+        pollingNotif,
         transfer,
         getAcctDetails,
       }}

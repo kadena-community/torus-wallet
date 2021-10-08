@@ -11,7 +11,7 @@ const HomeContainer = styled.div`
   display: flex;
   flex-flow: row;
   textAlign: center;
-  margin: 72px 64px;
+  /* margin: 72px 64px; */
   height: 100%;
   padding: 10px 10px;
   border-radius: 24px;
@@ -23,7 +23,7 @@ const HomeContainer = styled.div`
   background: ${theme.backgroundGradient}
   @media (max-width: ${({ theme: { mediaQueries } }) =>
     `${mediaQueries.mobilePixel + 1}px`}) {
-    margin: 30px 18px 18px;
+    /* margin: 30px 18px 18px; */
     padding 0px;
     flex-flow: column;
   }
