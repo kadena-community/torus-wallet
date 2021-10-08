@@ -7,7 +7,6 @@ import SuccessTransactionModal from "../components/modals/SuccessTransactionModa
 import { ModalContext } from "./ModalContext";
 import { NotificationContext, STATUSES } from "./NotificationContext";
 import { toast } from "react-toastify";
-import { Button } from "semantic-ui-react";
 
 export const PactContext = createContext(null);
 

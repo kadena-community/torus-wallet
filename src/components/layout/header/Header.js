@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
-import { Divider, Menu, Sidebar } from "semantic-ui-react";
+import {  Menu, Sidebar } from "semantic-ui-react";
 import styled from "styled-components/macro";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { MAINNET, TESTNET } from "../../../contexts/NetworkContext";
 
 import { DropdownIcon, HamburgerIcon, PowerIcon, CrossIcon } from "../../../assets";
 import ToggleSwitchButton from "../../shared/ToogleSwitchButton";
-import { useHistory, useLocation, useParams } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import theme from "../../../styles/theme";
 import CustomPopup from "../../shared/CustomPopup";
 import { ViewportContext } from "../../../contexts/ViewportContext";
@@ -34,6 +34,12 @@ const LeftContainer = styled.div`
   display: flex;
   align-items: center;
   margin-left: 15px;
+
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+  margin-left: 0px;
+  }
+
   & > *:not(:last-child) {
     margin-right: 25px;
   }
@@ -126,10 +132,11 @@ const MenuLabelContainer = styled.div`
     }
 `;
 
-const LogOutContainer = styled.div`
+const BottomSidebarContainer = styled.div`
   display: flex;
+  width:100%;
   position: absolute;
-  flex-flow: row;
+  flex-flow: column;
   align-items: center;
   justify-content: center;
   bottom: 25px;
@@ -137,7 +144,7 @@ const LogOutContainer = styled.div`
    & > *:not(:last-child) {
     align-self: center;
     margin-top: 0 !important;
-    margin-right: 10px;
+    margin-bottom: 10px;
   }
 
   & > *:last-child {
@@ -146,6 +153,14 @@ const LogOutContainer = styled.div`
     }
 `;
 
+const LogoutContainer = styled.div`
+display:flex;
+align-items: center;
+
+svg {
+    margin:0 15px 0 0;
+  }
+`;
 
 
 const MenuItemsContainer = styled.div`
@@ -224,8 +239,9 @@ const Header = () => {
                   />
                 </MenuLabelContainer>
                 <MenuItemsContainer>
-                  {Object.values(MENU_LIST_COMPONENT).map((menu) => (
+                  {Object.values(MENU_LIST_COMPONENT).map((menu,index) => (
                     <Button
+                    key={index}
                       background= {(url.pathname === menu.route) ?  "#fff" :  "transparent"}
                       color= {(url.pathname === menu.route) ?  theme.colors.primary :  "#fff"}
                       border= {(url.pathname === menu.route) ? "" : "none"}
@@ -237,13 +253,21 @@ const Header = () => {
                     </Button>
                   ))}
                 </MenuItemsContainer>
-                <hr style={{display: "flex", width: "80%", position:"absolute", bottom: "60px", borderTop: "1px solid #fff"}}/>
-                <LogOutContainer
-                  onClick={() => auth.logout()}>
+                <BottomSidebarContainer onClick={() => auth.logout()}>
+                    <hr style={{display: "flex", width: "90%", borderTop: "1px solid #fff"}}/>
+                    <Label
+                        style={{
+                          color: theme.colors.white,
+                          fontSize: 16,
+                        }}
+                    >
+                    {auth.user.username}
+                    </Label>
+                <LogoutContainer>
                   <PowerIcon/>
                   <span style={{color: "#fff"}}>Log Out</span>
-
-                </LogOutContainer>
+                </LogoutContainer>
+                </BottomSidebarContainer>
               </SideBarContainer>
             </Sidebar>
           </>
@@ -272,7 +296,7 @@ const Header = () => {
         </ToggleContainer>
         {viewport.isMobile ? (
           <Item>
-            <Label
+            {/* <Label
               style={{
                 marginRight: "15px",
                 color: theme.colors.white,
@@ -281,7 +305,7 @@ const Header = () => {
             >
               {auth.user.username}
             </Label>
-            
+             */}
           </Item>
         ) : (
           <Item>
