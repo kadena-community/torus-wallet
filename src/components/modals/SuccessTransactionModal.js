@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components/macro";
 import { SuccessfullIcon } from "../../assets";
 import ModalContainer from "../shared/ModalContainer";
@@ -12,6 +12,10 @@ const Container = styled.div`
   align-items: center;
   min-width: 385px;
   width: 100%;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+  min-width: 0px;
+    }  
 `;
 
 const Content = styled.div`

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { useContext } from "react/cjs/react.development";
-import { Dropdown, Grid } from "semantic-ui-react";
+import { Divider, Dropdown, Grid } from "semantic-ui-react";
 import styled from "styled-components";
 import Pact from "pact-lang-api";
 
@@ -16,23 +16,18 @@ import theme from "../styles/theme";
 
 const ContentContainer = styled.div`
   position: relative;
-  margin-top: 50px;
   max-height: 70vh;
   max-width: 650px;
   display: flex;
   flex-flow: column;
-  padding: 20px 20px;
   width: 100%;
-  border-radius: 24px;
-  box-shadow: ${theme.boxshadowLogin};
-  background: ${theme.backgroundGradient};
-  opacity: 1;
+  padding:10px;
+ 
   color: ${({ theme: { colors } }) => colors.white};
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
+          width:90%;
     margin-top: 10%;
-    margin-left: 10px;
-    margin-right: 10px;
   }
 
   ::-webkit-scrollbar {
@@ -40,8 +35,36 @@ const ContentContainer = styled.div`
   }
 
   .textBold {
-    font-family: roboto-bold;
-    font-size: 18px;
+    font-family: ${({theme:{fontFamily}})=>fontFamily.bold};
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+        font-size: 12px;
+          padding:0 0 0 10px !important;
+    }
+  }
+
+  .item-column {
+    font-family: ${({theme:{fontFamily}})=>fontFamily.regular};
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+            font-size: 12px;
+            padding:0 0 0 10px !important;
+    }  
+  }
+`;
+
+const ListContainer = styled.div`
+position: relative;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  padding: 20px 20px;
+  border-radius: 24px;
+  box-shadow: ${theme.boxshadowLogin};
+  background: ${theme.backgroundGradient};
+  opacity: 1;
+  ::-webkit-scrollbar {
+    display: block;
   }
 `;
 
@@ -104,16 +127,18 @@ const HistoryContainer = () => {
 
   return (
     <Layout>
+
       <ContentContainer>
-        <TitleContainer>
+      <TitleContainer>
           <Title>History Wallet</Title>
         </TitleContainer>
+        <ListContainer>
         <Dropdown
           style={{
-            fontFamily: "roboto-bold",
             fontSize: 18,
             minWidth: "2.5em",
             marginBottom: 16,
+            border: "2px solid #ffffff",
           }}
           selection
           value={selectedChain}
@@ -130,15 +155,16 @@ const HistoryContainer = () => {
             setSelectedChain(value.value);
           }}
         />
-        <Grid style={{ width: "100%", marginLeft: 0 }}>
-          <Grid.Row columns="3">
-            <Grid.Column className="textBold">Tx Id</Grid.Column>
-            <Grid.Column className="textBold">to Account</Grid.Column>
-            <Grid.Column className="textBold">Amount</Grid.Column>
+        <Grid style={{ width: "100%", margin: "2px 0 16px 0"} }>
+          <Grid.Row columns="3" style={{padding:0}}>
+            <Grid.Column className="textBold" >Tx ID</Grid.Column>
+            <Grid.Column className="textBold" >To Account</Grid.Column>
+            <Grid.Column className="textBold" >Amount</Grid.Column>
           </Grid.Row>
         </Grid>
+        <Divider style={{display: "flex",margin:0, width: "100%",  borderTop: "1px solid #fff"}}/>
         <PartialScrollableScrollSection>
-          <Grid style={{ width: "100%", minHeight: "50px", margin: "16px 0" }}>
+          <Grid style={{ width: "100%", minHeight: "50px", margin: "8px 0" }}>
             {pact.txList === "NO_TX_FOUND" ? (
               <Grid.Row>
                 <Grid.Column>No Transfer found</Grid.Column>
@@ -153,7 +179,7 @@ const HistoryContainer = () => {
                   <Grid.Row
                     columns="3"
                     key={index}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer"}}
                     onClick={() => {
                       window.open(
                         `https://explorer.chainweb.com/${network.name}/tx/${tx?.reqKey}`,
@@ -162,16 +188,17 @@ const HistoryContainer = () => {
                       );
                     }}
                   >
-                    <Grid.Column>{tx?.txId}</Grid.Column>
-                    <Grid.Column>
+                    <Grid.Column className="item-column" >{tx?.txId}</Grid.Column>
+                    <Grid.Column className="item-column">
                       {reduceTokenMobile(tx?.events[1]?.params[1])}
                     </Grid.Column>
-                    <Grid.Column>{`${tx?.events[1]?.params[2]} KDA`}</Grid.Column>
+                    <Grid.Column className="item-column" >{`${tx?.events[1]?.params[2]} KDA`}</Grid.Column>
                   </Grid.Row>
                 ))
             )}
           </Grid>
         </PartialScrollableScrollSection>
+        </ListContainer>
       </ContentContainer>
     </Layout>
   );
