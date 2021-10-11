@@ -206,8 +206,8 @@ export const PactProvider = (props) => {
       title: "TRANSFER IN PROCESS:  The transfer will take a few minutes",
       message: reqKey,
       type: STATUSES.INFO,
-      autoClose: 92000,
-      hideProgressBar: false,
+      autoClose: 5000,
+      hideProgressBar: true,
     }));
   };
 

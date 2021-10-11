@@ -135,11 +135,9 @@ const HistoryContainer = () => {
         <ListContainer>
         <Dropdown
           style={{
-            fontSize: 18,
-            minWidth: "2.5em",
             marginBottom: 16,
-            border: "2px solid #ffffff",
           }}
+          className="sender-dropdown"
           selection
           value={selectedChain}
           placeholder="Chain"

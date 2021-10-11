@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useContext } from "react/cjs/react.development";
+import { Dimmer } from "semantic-ui-react";
 import styled from "styled-components";
 import { AuthContext } from "../../contexts/AuthContext";
 import CustomLoader from "../shared/CustomLoader";
@@ -30,13 +31,15 @@ const Container = styled.div`
 
 const Layout = ({ loader, children }) => {
   const auth = useContext(AuthContext);
+  const [sideBarIsVisible, setSideBarIsVisible] = useState(false);
+
   return (
     <>
       <CustomLoader loader={auth.loading} message="Switching Network.." />
       {loader?.map((load) => load)}
+      <Dimmer active={sideBarIsVisible} style={{zIndex:1}}/>
       <MainContainer>
-        <Header />
-
+        <Header sideBarIsVisible={sideBarIsVisible} setSideBarIsVisible={setSideBarIsVisible}/>
         <Container>{children}</Container>
       </MainContainer>
     </>

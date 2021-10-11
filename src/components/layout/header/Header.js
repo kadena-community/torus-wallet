@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import {  Menu, Sidebar } from "semantic-ui-react";
+import React, { useContext } from "react";
+import {  Dimmer, Menu, Sidebar } from "semantic-ui-react";
 import styled from "styled-components/macro";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { MAINNET, TESTNET } from "../../../contexts/NetworkContext";
@@ -103,6 +103,7 @@ const RightContainer = styled.div`
 `;
 
 const SideBarContainer = styled.div`
+  z-index: 100;
   display: flex;
   flex-flow: column;
   align-items: center;
@@ -173,8 +174,8 @@ const MenuItemsContainer = styled.div`
 
 const ToggleContainer = styled.div`
   display: flex;
-  border: 1px solid #fcfcfc;
-  box-shadow: ${theme.boxshadow};
+  border: 0.5px solid #FFFFFF;
+  /* box-shadow: ${theme.boxshadow}; */
   border-radius: 5px;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
@@ -193,16 +194,16 @@ const Label = styled.span`
   text-transform: capitalize;
 `;
 
-const Header = () => {
+const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
   const auth = useContext(AuthContext);
   const viewport = useContext(ViewportContext);
   const history = useHistory();
-  const [sideBarIsVisible, setSideBarIsVisible] = useState(false);
-
   const url = useLocation();
 
   return (
     <HeaderContainer>
+            <Dimmer active={sideBarIsVisible} style={{zIndex:1}}/>
+
       <LeftContainer>
         {viewport.isMobile ? (
           // MOBILE MENU
@@ -241,7 +242,7 @@ const Header = () => {
                 <MenuItemsContainer>
                   {Object.values(MENU_LIST_COMPONENT).map((menu,index) => (
                     <Button
-                    key={index}
+                      key={index}
                       background= {(url.pathname === menu.route) ?  "#fff" :  "transparent"}
                       color= {(url.pathname === menu.route) ?  theme.colors.primary :  "#fff"}
                       border= {(url.pathname === menu.route) ? "" : "none"}
@@ -273,8 +274,9 @@ const Header = () => {
           </>
         ) : (
           // DESKTOP MENU
-          Object.values(MENU_LIST_COMPONENT).map((menu) => (
+          Object.values(MENU_LIST_COMPONENT).map((menu,index) => (
             <Item
+            key={index}
               exact
               onClick={() => {
                 history.push(menu.route);
