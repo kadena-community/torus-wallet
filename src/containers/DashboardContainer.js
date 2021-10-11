@@ -224,7 +224,6 @@ function DashboardContainer(props) {
               {reduceToken(auth.user.publicKey)}
             </div>
             <Popup
-              className="mobile-none"
               content="copied!"
               on="click"
               position="bottom right"
@@ -232,7 +231,6 @@ function DashboardContainer(props) {
               pinned
               trigger={
                 <CopyIcon
-                  className="mobile-none"
                   style={{ marginLeft: "35px" }}
                   onClick={() => {
                     navigator.clipboard.writeText(auth.user.publicKey);
