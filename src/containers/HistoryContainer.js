@@ -56,6 +56,7 @@ const ContentContainer = styled.div`
 const ListContainer = styled.div`
 position: relative;
   width: 100%;
+  height: 100%;
   display: flex;
   flex-flow: column;
   padding: 20px 20px;
@@ -135,9 +136,11 @@ const HistoryContainer = () => {
         <ListContainer>
         <Dropdown
           style={{
+            fontSize: 18,
+            minWidth: "2.5em",
             marginBottom: 16,
+            border: "2px solid #ffffff",
           }}
-          className="sender-dropdown"
           selection
           value={selectedChain}
           placeholder="Chain"
