@@ -201,13 +201,13 @@ export const PactProvider = (props) => {
     });
   };
 
-  const pollingNotif = (reqKey) => {
+  const pollingNotif = (reqKey, customTitle) => {
     return (toastId.current = notificationContext.showNotification({
-      title: "TRANSFER IN PROCESS:  The transfer will take a few minutes",
-      message: reqKey,
+      title: customTitle || "TRANSFER IN PROCESS:  The transfer will take a few minutes" ,
+      message: reqKey || "",
       type: STATUSES.INFO,
-      autoClose: 5000,
-      hideProgressBar: true,
+      autoClose: 92000,
+      hideProgressBar: false,
     }));
   };
 
@@ -304,14 +304,15 @@ export const PactProvider = (props) => {
     toChain
   ) => {
     setConfirmResponseTransfer(false);
-    swal(
+    /* swal(
       "TRANSFER SAME CHAIN IN PROCESS",
       `Trasfering ${amount} KDA by chain ${fromChain} to ${toChain}`,
       {
         icon: "info",
         timer: 5000,
       }
-    );
+    ); */
+    pollingNotif("", `TRANSFER SAME CHAIN IN PROCESS, Trasfering ${amount} KDA by chain ${fromChain} to ${toChain}`);
     try {
       const accountPubKey = getPubFromPriv(accountPrivKey);
       const burn = await Pact.fetch.send(
@@ -348,6 +349,7 @@ export const PactProvider = (props) => {
       const reqKey = burn.requestKeys[0];
       const pollRes = await pollTxRes(reqKey, host(fromChain));
       if (pollRes.result.status === "success") {
+        await toast.dismiss(toastId.current);
         const pactId = pollRes.continuation.pactId;
         const targetChainId =
           pollRes.continuation.yield.provenance.targetChainId;
@@ -396,6 +398,7 @@ export const PactProvider = (props) => {
             }
           );
         } else {
+          await toast.dismiss(toastId.current);
           //funds were burned on fromChain but not minted on toChain
           //visit https://transfer.chainweb.com/xchain.html and approve the mint with the reqKey
 
@@ -408,6 +411,7 @@ export const PactProvider = (props) => {
           );
         }
       } else {
+        await toast.dismiss(toastId.current);
         //burn did not work
 
         return swal(
@@ -419,6 +423,7 @@ export const PactProvider = (props) => {
         );
       }
     } catch (e) {
+      await toast.dismiss(toastId.current);
       console.log(e);
       return "CANNOT PROCESS CROSS-CHAIN TRANSFER: Network error";
     }
@@ -433,6 +438,7 @@ export const PactProvider = (props) => {
     chainId
   ) => {
     try {
+      pollingNotif("", "TRANSFER IN PROGRESS..")
       // const accountPubKey = getPubFromPriv(accountPrivKey);
       let chainBalances = {};
 
@@ -463,6 +469,7 @@ export const PactProvider = (props) => {
         total = total + halfBal;
         if (total > amountNeeded) break;
       }
+      await toast.dismiss(toastId.current);
       for (let i = 0; i < transfers.length; i++) {
         await transferCrossChainSameAccount(
           "coin",
@@ -476,6 +483,7 @@ export const PactProvider = (props) => {
 
       return `BALANCE FUNDS SUCCESS`;
     } catch (e) {
+      await toast.dismiss(toastId.current);
       console.log(e);
       return swal("CANNOT PROCESS BALANCE FUNDS:", "Network error", {
         icon: "error",
