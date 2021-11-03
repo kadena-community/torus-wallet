@@ -107,10 +107,6 @@ const FormContainer = styled.div`
 
 const TransferContainer = () => {
   const auth = useContext(AuthContext);
-  console.log(
-    '🚀 ~ file: TransferContainer.js ~ line 110 ~ TransferContainer ~ auth',
-    auth
-  );
   const pact = useContext(PactContext);
 
   useEffect(() => {
@@ -162,6 +158,16 @@ const TransferContainer = () => {
         .loginForTransfer()
         .then((result) => {
           let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
+          // if (pubKeyByNewLogAcct === values.toAccount) {
+          //   pact.transferCrossChainSameAccount(
+          //     'coin',
+          //     auth.user.publicKey,
+          //     result,
+          //     values.amount,
+          //     values.senderChain,
+          //     `${values.receiverChain}`
+          //   );
+          // } else
           if (values.senderChain !== 'ANY') {
             if (
               pubKeyByNewLogAcct === auth.user.publicKey &&
@@ -494,7 +500,12 @@ const TransferContainer = () => {
                         value: chain,
                       }))
                     }
-                    disabled={values.senderChain !== 'ANY'}
+                    disabled={
+                      // auth.user.publicKey === values.toAccount
+                      //   ? false
+                      //   :
+                      values.senderChain !== 'ANY'
+                    }
                     onChange={(e, value) => {
                       setFieldValue('receiverChain', value.value);
                     }}
@@ -530,7 +541,7 @@ const TransferContainer = () => {
               type='submit'
               buttonStyle={{ width: '100%' }}
               fontSize='20px'
-              inverted={values.amount < accountBalance(auth.user.balance)}
+              inverted={values.amount <= accountBalance(auth.user.balance)}
               disabled={values.amount > accountBalance(auth.user.balance)}
               onClick={handleSubmit}
             >

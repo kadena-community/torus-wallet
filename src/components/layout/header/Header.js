@@ -17,6 +17,7 @@ import CustomPopup from '../../shared/CustomPopup';
 import { ViewportContext } from '../../../contexts/ViewportContext';
 import { MENU_LIST_COMPONENT } from './MenuListComponents';
 import Button from '../../shared/Button';
+import BellNotification from '../../right-modal-notification/BellNotification';
 
 const HeaderContainer = styled.div`
   position: sticky;
@@ -94,7 +95,7 @@ const RightContainer = styled.div`
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
-    flex-flow: column;
+    /* flex-flow: column; */
     align-items: flex-end;
     & > *:first-child {
       margin-bottom: 10px;
@@ -303,6 +304,8 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
         )}
       </LeftContainer>
       <RightContainer>
+        <BellNotification hasNotification={true} />
+
         <ToggleContainer>
           <ToggleSwitchButton
             label1={MAINNET.label}
@@ -311,6 +314,7 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
             onChange={() => {}}
           />
         </ToggleContainer>
+
         {viewport.isMobile ? (
           <Item>
             {/* <Label
