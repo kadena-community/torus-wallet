@@ -13,7 +13,7 @@ import Button from '../components/shared/Button';
 import InputWithLabel from '../components/shared/InputWithLabel';
 
 import { checkKey } from '../util/format-helpers';
-import { reduceBalance } from '../util/reduceBalance';
+import { accountBalance, reduceBalance } from '../util/reduceBalance';
 import { chainList } from '../constants/chainList';
 import Layout from '../components/layout/Layout';
 import theme from '../styles/theme';
@@ -107,6 +107,10 @@ const FormContainer = styled.div`
 
 const TransferContainer = () => {
   const auth = useContext(AuthContext);
+  console.log(
+    '🚀 ~ file: TransferContainer.js ~ line 110 ~ TransferContainer ~ auth',
+    auth
+  );
   const pact = useContext(PactContext);
 
   useEffect(() => {
@@ -119,10 +123,22 @@ const TransferContainer = () => {
       .min(3, 'Receiver must be at least 3 characters'),
     amount: Yup.number()
       .typeError('Amount must be a decimal number')
-      .required('Insert amount'),
+      .required('Insert amount')
+      .max(
+        reduceBalance(
+          auth.user.balance.reduce((a, b) => {
+            return parseFloat(a) + parseFloat(b);
+          })
+        ),
+        'The amount must be less or ugual to balance'
+      ),
     senderChain: Yup.string().required('Select Sender Chain'),
     receiverChain: Yup.string().required('Select Receiver Chain'),
   });
+  console.log(
+    '🚀 ~ file: TransferContainer.js ~ line 136 ~ validationSchema ~ validationSchema',
+    validationSchema
+  );
 
   const {
     values,
@@ -414,11 +430,7 @@ const TransferContainer = () => {
       }));
       optUser.unshift({
         key: 'any',
-        text: `Any Chain - ${reduceBalance(
-          auth.user.balance.reduce((a, b) => {
-            return parseFloat(a) + parseFloat(b);
-          })
-        )}  KDA`,
+        text: `Any Chain - ${accountBalance(auth.user.balance)}  KDA`,
         value: 'ANY',
       });
       return optUser;
@@ -518,7 +530,8 @@ const TransferContainer = () => {
               type='submit'
               buttonStyle={{ width: '100%' }}
               fontSize='20px'
-              inverted
+              inverted={values.amount < accountBalance(auth.user.balance)}
+              disabled={values.amount > accountBalance(auth.user.balance)}
               onClick={handleSubmit}
             >
               Transfer
