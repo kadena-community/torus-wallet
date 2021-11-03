@@ -1,23 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useEffect } from "react";
-import { Dropdown } from "semantic-ui-react";
-import { Input as SUIInput } from "semantic-ui-react";
-import styled from "styled-components/macro";
-import * as Yup from "yup";
-import { useFormik } from "formik";
-import swal from "sweetalert";
-import { AuthContext } from "../contexts/AuthContext";
-import { PactContext } from "../contexts/PactContext";
+import React, { useContext, useEffect } from 'react';
+import { Dropdown } from 'semantic-ui-react';
+import { Input as SUIInput } from 'semantic-ui-react';
+import styled from 'styled-components/macro';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import swal from 'sweetalert';
+import { AuthContext } from '../contexts/AuthContext';
+import { PactContext } from '../contexts/PactContext';
 
-import Button from "../components/shared/Button";
-import InputWithLabel from "../components/shared/InputWithLabel";
+import Button from '../components/shared/Button';
+import InputWithLabel from '../components/shared/InputWithLabel';
 
-import { checkKey } from "../util/format-helpers";
-import { reduceBalance } from "../util/reduceBalance";
-import { chainList } from "../constants/chainList";
-import Layout from "../components/layout/Layout";
-import theme from "../styles/theme";
-import CustomLoader from "../components/shared/CustomLoader";
+import { checkKey } from '../util/format-helpers';
+import { reduceBalance } from '../util/reduceBalance';
+import { chainList } from '../constants/chainList';
+import Layout from '../components/layout/Layout';
+import theme from '../styles/theme';
+import CustomLoader from '../components/shared/CustomLoader';
 
 const ContentContainer = styled.div`
   position: relative;
@@ -115,13 +115,13 @@ const TransferContainer = () => {
 
   const validationSchema = Yup.object().shape({
     toAccount: Yup.string()
-      .required("Insert Receiver account")
-      .min(3, "Receiver must be at least 3 characters"),
+      .required('Insert Receiver account')
+      .min(3, 'Receiver must be at least 3 characters'),
     amount: Yup.number()
-      .typeError("Amount must be a decimal number")
-      .required("Insert amount"),
-    senderChain: Yup.string().required("Select Sender Chain"),
-    receiverChain: Yup.string().required("Select Receiver Chain"),
+      .typeError('Amount must be a decimal number')
+      .required('Insert amount'),
+    senderChain: Yup.string().required('Select Sender Chain'),
+    receiverChain: Yup.string().required('Select Receiver Chain'),
   });
 
   const {
@@ -135,9 +135,9 @@ const TransferContainer = () => {
   } = useFormik({
     enableReinitialize: true,
     initialValues: {
-      toAccount: "",
-      amount: "",
-      senderChain: "ANY",
+      toAccount: '',
+      amount: '',
+      senderChain: 'ANY',
       receiverChain: 0,
     },
     validationSchema,
@@ -146,13 +146,13 @@ const TransferContainer = () => {
         .loginForTransfer()
         .then((result) => {
           let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
-          if (values.senderChain !== "ANY") {
+          if (values.senderChain !== 'ANY') {
             if (
               pubKeyByNewLogAcct === auth.user.publicKey &&
               values.senderChain === values.receiverChain
             ) {
               safeTransfer(
-                "coin",
+                'coin',
                 auth.user.publicKey,
                 result,
                 values.toAccount,
@@ -164,13 +164,13 @@ const TransferContainer = () => {
                 `CANNOT PROCESS TRANSFER:`,
                 `The login account and confirmation account must be the same`,
                 {
-                  icon: "error",
+                  icon: 'error',
                 }
               );
             }
           } else {
             safeTransferCrossChain(
-              "coin",
+              'coin',
               auth.user.publicKey,
               result,
               values.toAccount,
@@ -184,8 +184,8 @@ const TransferContainer = () => {
   });
 
   useEffect(() => {
-    if (values.senderChain !== "ANY")
-      setFieldValue("receiverChain", values.senderChain);
+    if (values.senderChain !== 'ANY')
+      setFieldValue('receiverChain', values.senderChain);
   }, [values.senderChain]);
 
   const safeTransfer = async (
@@ -208,7 +208,7 @@ const TransferContainer = () => {
         return swal(
           `CANNOT PROCESS TRANSFER: ${fromAcct} does not exist on chain ${chainId}`,
           {
-            icon: "error",
+            icon: 'error',
           }
         );
       }
@@ -218,7 +218,7 @@ const TransferContainer = () => {
         return swal(
           `CANNOT PROCESS TRANSFER: not enough funds on chain ${chainId}`,
           {
-            icon: "error",
+            icon: 'error',
           }
         );
       }
@@ -231,8 +231,8 @@ const TransferContainer = () => {
           //but the public key guard does not match account name public key
           //EXIT function
 
-          return swal(" non-matching public keys", {
-            icon: "error",
+          return swal(' non-matching public keys', {
+            icon: 'error',
           });
         } else {
           //send to this account with this guard
@@ -247,12 +247,12 @@ const TransferContainer = () => {
           );
           return res;
         }
-      } else if (details === "CANNOT FETCH ACCOUNT: network error") {
+      } else if (details === 'CANNOT FETCH ACCOUNT: network error') {
         //account fetch failed
         //EXIT function
 
-        return swal("CANNOT PROCESS TRANSFER: account not fetched", {
-          icon: "error",
+        return swal('CANNOT PROCESS TRANSFER: account not fetched', {
+          icon: 'error',
         });
       } else {
         //toAcct does not yet exist
@@ -270,14 +270,14 @@ const TransferContainer = () => {
             toAcct,
             amount,
             chainId,
-            { pred: "keys-all", keys: [toAcct] }
+            { pred: 'keys-all', keys: [toAcct] }
           );
           return res;
         } else {
           //toAcct is totally invalid
           //EXIT function
-          return swal("CANNOT PROCESS TRANSFER: new account not a public key", {
-            icon: "error",
+          return swal('CANNOT PROCESS TRANSFER: new account not a public key', {
+            icon: 'error',
           });
         }
       }
@@ -285,8 +285,8 @@ const TransferContainer = () => {
       //most likely a formatting or rate limiting error
       console.log(e);
 
-      return swal("CANNOT PROCESS TRANSFER: network error", {
-        icon: "error",
+      return swal('CANNOT PROCESS TRANSFER: network error', {
+        icon: 'error',
       });
     }
   };
@@ -317,14 +317,14 @@ const TransferContainer = () => {
           ownDetails.balance,
           targetChainId
         );
-        if (fundedXChain !== "BALANCE FUNDS SUCCESS") {
+        if (fundedXChain !== 'BALANCE FUNDS SUCCESS') {
           //was not able to move funds across different chains
 
           return swal(
             `CANNOT PROCESS TRANSFER:`,
             `Not enough funds on chain ${targetChainId}`,
             {
-              icon: "error",
+              icon: 'error',
             }
           );
         }
@@ -343,8 +343,8 @@ const TransferContainer = () => {
           //but the public key guard does not match account name public key
           //EXIT function
 
-          return swal("CANNOT PROCESS TRANSFER:", "Non-matching public keys", {
-            icon: "error",
+          return swal('CANNOT PROCESS TRANSFER:', 'Non-matching public keys', {
+            icon: 'error',
           });
         } else {
           //send to this account with this guard
@@ -359,12 +359,12 @@ const TransferContainer = () => {
           );
           return res;
         }
-      } else if (details === "CANNOT FETCH ACCOUNT: network error") {
+      } else if (details === 'CANNOT FETCH ACCOUNT: network error') {
         //account fetch failed
         //EXIT function
 
-        return swal("CANNOT PROCESS TRANSFER:", "Account not fetched", {
-          icon: "error",
+        return swal('CANNOT PROCESS TRANSFER:', 'Account not fetched', {
+          icon: 'error',
         });
       } else {
         //toAcct does not yet exist
@@ -382,7 +382,7 @@ const TransferContainer = () => {
             toAcct,
             amount,
             targetChainId,
-            { pred: "keys-all", keys: [toAcct] }
+            { pred: 'keys-all', keys: [toAcct] }
           );
           return res;
         } else {
@@ -390,8 +390,8 @@ const TransferContainer = () => {
           //EXIT function
 
           return swal(
-            "CANNOT PROCESS TRANSFER:",
-            "New account not a public key"
+            'CANNOT PROCESS TRANSFER:',
+            'New account not a public key'
           );
         }
       }
@@ -399,8 +399,8 @@ const TransferContainer = () => {
       //most likely a formatting or rate limiting error
 
       console.log(e);
-      return swal("CANNOT PROCESS TRANSFER:", "Network error", {
-        icon: "error",
+      return swal('CANNOT PROCESS TRANSFER:', 'Network error', {
+        icon: 'error',
       });
     }
   };
@@ -413,13 +413,13 @@ const TransferContainer = () => {
         value: index,
       }));
       optUser.unshift({
-        key: "any",
+        key: 'any',
         text: `Any Chain - ${reduceBalance(
           auth.user.balance.reduce((a, b) => {
             return parseFloat(a) + parseFloat(b);
           })
         )}  KDA`,
-        value: "ANY",
+        value: 'ANY',
       });
       return optUser;
     }
@@ -428,7 +428,7 @@ const TransferContainer = () => {
   return (
     <Layout
       loader={[
-        <CustomLoader loader={auth.connectingLoading} message="Connecting.." />,
+        <CustomLoader loader={auth.connectingLoading} message='Connecting..' />,
       ]}
     >
       <ContentContainer>
@@ -437,43 +437,43 @@ const TransferContainer = () => {
             <Title>Transfer</Title>
           </TitleContainer>
           <FormContainer
-            style={{ color: "#FFFFFF", flexFlow: "column" }}
-            id="tranfer"
+            style={{ color: '#FFFFFF', flexFlow: 'column' }}
+            id='tranfer'
           >
             <InputWithLabel
-              label="Sender Chain"
+              label='Sender Chain'
               error={touched.senderChain && errors.senderChain}
             >
               <Dropdown
                 fluid
                 selection
-                name="senderChain"
-                id="senderChain"
-                placeholder="Chain"
-                className="sender-dropdown"
+                name='senderChain'
+                id='senderChain'
+                placeholder='Chain'
+                className='sender-dropdown'
                 options={getSenderChainOptions()}
                 onChange={(e, value) => {
-                  setFieldValue("senderChain", value.value);
+                  setFieldValue('senderChain', value.value);
                 }}
                 value={values.senderChain}
               />
             </InputWithLabel>
             <InputWithLabel
-              label="Receiver"
+              label='Receiver'
               error={touched.toAccount && errors.toAccount}
             >
               <SUIInput
                 fluid
-                name="toAccount"
-                id="toAccount"
+                name='toAccount'
+                id='toAccount'
                 label={
                   <Dropdown
-                    className="receiver-dropdown"
-                    style={{ borderLeft: "none !important" }}
+                    className='receiver-dropdown'
+                    style={{ borderLeft: 'none !important' }}
                     selection
-                    name="receiverChain"
-                    id="receiverChain"
-                    placeholder="Chain"
+                    name='receiverChain'
+                    id='receiverChain'
+                    placeholder='Chain'
                     options={
                       !auth.loading &&
                       Object.values(chainList).map((chain) => ({
@@ -482,16 +482,16 @@ const TransferContainer = () => {
                         value: chain,
                       }))
                     }
-                    disabled={values.senderChain !== "ANY"}
+                    disabled={values.senderChain !== 'ANY'}
                     onChange={(e, value) => {
-                      setFieldValue("receiverChain", value.value);
+                      setFieldValue('receiverChain', value.value);
                     }}
                     value={values.receiverChain}
                   />
                 }
-                labelPosition="right"
-                placeholder="Insert Public Key"
-                size="big"
+                labelPosition='right'
+                placeholder='Insert Public Key'
+                size='big'
                 // disabled={disabled}
                 value={values.toAccount}
                 onChange={handleChange}
@@ -499,15 +499,15 @@ const TransferContainer = () => {
               ></SUIInput>
             </InputWithLabel>
             <InputWithLabel
-              label="Amount"
+              label='Amount'
               error={touched.amount && errors.amount}
             >
               <SUIInput
                 fluid
-                name="amount"
-                id="amount"
-                placeholder="Insert Amount"
-                size="big"
+                name='amount'
+                id='amount'
+                placeholder='Insert Amount'
+                size='big'
                 // disabled={disabled}
                 value={values.amount}
                 onChange={handleChange}
@@ -515,9 +515,9 @@ const TransferContainer = () => {
               ></SUIInput>
             </InputWithLabel>
             <Button
-              type="submit"
-              buttonStyle={{ width: "100%" }}
-              fontSize="20px"
+              type='submit'
+              buttonStyle={{ width: '100%' }}
+              fontSize='20px'
               inverted
               onClick={handleSubmit}
             >

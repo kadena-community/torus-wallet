@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState } from "react";
-import Pact from "pact-lang-api";
-import { NetworkContext } from "./NetworkContext";
-import swal from "sweetalert";
-import { formatAmount } from "../util/format-helpers";
-import SuccessTransactionModal from "../components/modals/SuccessTransactionModal";
-import { ModalContext } from "./ModalContext";
-import { NotificationContext, STATUSES } from "./NotificationContext";
-import { toast } from "react-toastify";
+import React, { createContext, useContext, useState } from 'react';
+import Pact from 'pact-lang-api';
+import { NetworkContext } from './NetworkContext';
+import swal from 'sweetalert';
+import { formatAmount } from '../util/format-helpers';
+import SuccessTransactionModal from '../components/modals/SuccessTransactionModal';
+import { ModalContext } from './ModalContext';
+import { NotificationContext, STATUSES } from './NotificationContext';
+import { toast } from 'react-toastify';
 
 export const PactContext = createContext(null);
 
@@ -30,13 +30,13 @@ export const PactProvider = (props) => {
   const creationTime = () => Math.round(new Date().getTime() / 1000) - 15;
   const host = (chainId) =>
     `https://${networkContext.network.kadenaServer}/chainweb/0.0/${networkContext.network.networkID}/chain/${chainId}/pact`;
-  
+
   //TO FIX, not working when multiple toasts are there
   const toastId = React.useRef(null);
   // const [toastIds, setToastIds] = useState({})
 
   const setReqKeysLocalStorage = (key) => {
-    const swapReqKeysLS = JSON.parse(localStorage.getItem("reqKeys"));
+    const swapReqKeysLS = JSON.parse(localStorage.getItem('reqKeys'));
     if (!swapReqKeysLS) {
       //first saving swapReqKeys in localstorage
       localStorage.setItem(`reqKeys`, JSON.stringify([key]));
@@ -53,7 +53,7 @@ export const PactProvider = (props) => {
           pactCode: `(${tokenAddress}.details ${JSON.stringify(acct)})`,
           keyPairs: Pact.crypto.genKeyPair(),
           meta: Pact.lang.mkMeta(
-            "",
+            '',
             chainId,
             GAS_PRICE,
             GAS_LIMIT,
@@ -64,7 +64,7 @@ export const PactProvider = (props) => {
         host(chainId)
       );
 
-      if (data.result.status === "success") {
+      if (data.result.status === 'success') {
         //account exists
         //return {account: string, guard:obj, balance: decimal}
         return data.result.data;
@@ -76,7 +76,7 @@ export const PactProvider = (props) => {
       //most likely a formatting or rate limiting error
 
       console.log(e);
-      return "CANNOT FETCH ACCOUNT: network error";
+      return 'CANNOT FETCH ACCOUNT: network error';
     }
   };
 
@@ -100,8 +100,8 @@ export const PactProvider = (props) => {
       return balances;
     } catch (e) {
       console.log(e);
-      return swal("GET BALANCE FAILED: NETWORK ERROR", {
-        icon: "error",
+      return swal('GET BALANCE FAILED: NETWORK ERROR', {
+        icon: 'error',
       });
     }
   };
@@ -147,10 +147,10 @@ export const PactProvider = (props) => {
       return pollRes[reqKey];
     } else {
       return swal(
-        "POLL FAILED:",
-        " Please try again. Note that the transaction specified may not exist on target chain",
+        'POLL FAILED:',
+        ' Please try again. Note that the transaction specified may not exist on target chain',
         {
-          icon: "error",
+          icon: 'error',
         }
       );
     }
@@ -169,7 +169,7 @@ export const PactProvider = (props) => {
     networkId,
     rollback = false
   ) => ({
-    type: "cont",
+    type: 'cont',
     keyPairs: [],
     meta,
     step,
@@ -203,8 +203,10 @@ export const PactProvider = (props) => {
 
   const pollingNotif = (reqKey, customTitle) => {
     return (toastId.current = notificationContext.showNotification({
-      title: customTitle || "TRANSFER IN PROCESS:  The transfer will take a few minutes" ,
-      message: reqKey || "",
+      title:
+        customTitle ||
+        'TRANSFER IN PROCESS:  The transfer will take a few minutes',
+      message: reqKey || '',
       type: STATUSES.INFO,
       autoClose: 92000,
       hideProgressBar: false,
@@ -260,7 +262,7 @@ export const PactProvider = (props) => {
             TTL
           ),
           envData: {
-            "recp-ks": guard,
+            'recp-ks': guard,
           },
         },
         host(chainId)
@@ -268,7 +270,7 @@ export const PactProvider = (props) => {
       const reqKey = res.requestKeys[0];
       pollingNotif(reqKey);
       const pollRes = await pollTxRes(reqKey, host(chainId));
-      if (pollRes.result.status === "success") {
+      if (pollRes.result.status === 'success') {
         await toast.dismiss(toastId.current);
         setReqKeysLocalStorage(reqKey);
         setConfirmResponseTransfer(true);
@@ -282,15 +284,15 @@ export const PactProvider = (props) => {
         );
       } else {
         await toast.dismiss(toastId.current);
-        return swal("CANNOT PROCESS TRANSFER: invalid blockchain tx", {
-          icon: "error",
+        return swal('CANNOT PROCESS TRANSFER: invalid blockchain tx', {
+          icon: 'error',
         });
       }
     } catch (e) {
       await toast.dismiss(toastId.current);
       console.log(e);
-      return swal("CANNOT PROCESS TRANSFER: network error", {
-        icon: "error",
+      return swal('CANNOT PROCESS TRANSFER: network error', {
+        icon: 'error',
       });
     }
   };
@@ -312,7 +314,10 @@ export const PactProvider = (props) => {
         timer: 5000,
       }
     ); */
-    pollingNotif("", `TRANSFER SAME CHAIN IN PROCESS, Trasfering ${amount} KDA by chain ${fromChain} to ${toChain}`);
+    pollingNotif(
+      '',
+      `TRANSFER SAME CHAIN IN PROCESS, Trasfering ${amount} KDA by chain ${fromChain} to ${toChain}`
+    );
     try {
       const accountPubKey = getPubFromPriv(accountPrivKey);
       const burn = await Pact.fetch.send(
@@ -341,14 +346,14 @@ export const PactProvider = (props) => {
             TTL
           ),
           envData: {
-            "own-ks": { pred: "keys-all", keys: [accountPubKey] },
+            'own-ks': { pred: 'keys-all', keys: [accountPubKey] },
           },
         },
         host(fromChain)
       );
       const reqKey = burn.requestKeys[0];
       const pollRes = await pollTxRes(reqKey, host(fromChain));
-      if (pollRes.result.status === "success") {
+      if (pollRes.result.status === 'success') {
         await toast.dismiss(toastId.current);
         const pactId = pollRes.continuation.pactId;
         const targetChainId =
@@ -359,14 +364,14 @@ export const PactProvider = (props) => {
           const spvRes = await Pact.fetch.spv(spvCmd, host(fromChain));
           if (
             spvRes !==
-            "SPV target not reachable: target chain not reachable. Chainweb instance is too young"
+            'SPV target not reachable: target chain not reachable. Chainweb instance is too young'
           ) {
             proof = spvRes;
           }
           await sleepPromise(5000);
         }
         const meta = Pact.lang.mkMeta(
-          "free-x-chain-gas",
+          'free-x-chain-gas',
           toChain,
           GAS_PRICE,
           300,
@@ -387,14 +392,14 @@ export const PactProvider = (props) => {
         const mint = await Pact.fetch.send(continuationCommand, host(toChain));
         const mintReqKey = mint.requestKeys[0];
         const mintPollRes = await pollTxRes(mintReqKey, host(toChain));
-        if (mintPollRes.result.status === "success") {
+        if (mintPollRes.result.status === 'success') {
           setReqKeysLocalStorage(mintReqKey);
           setConfirmResponseTransfer(true);
           return swal(
             `CROSS-CHAIN TRANSFER SUCCESS:`,
             `${amount} ${tokenAddress} transfered from chain ${fromChain} to ${toChain} for account ${account}`,
             {
-              icon: "success",
+              icon: 'success',
             }
           );
         } else {
@@ -406,7 +411,7 @@ export const PactProvider = (props) => {
             `PARTIAL CROSS-CHAIN TRANSFER:`,
             `Funds burned on chain ${fromChain} with reqKey ${reqKey} please mint on chain ${toChain}`,
             {
-              icon: "warning",
+              icon: 'warning',
             }
           );
         }
@@ -418,14 +423,14 @@ export const PactProvider = (props) => {
           `CANNOT PROCESS CROSS-CHAIN TRANSFER:`,
           `Cannot send from origin chain ${fromChain}`,
           {
-            icon: "error",
+            icon: 'error',
           }
         );
       }
     } catch (e) {
       await toast.dismiss(toastId.current);
       console.log(e);
-      return "CANNOT PROCESS CROSS-CHAIN TRANSFER: Network error";
+      return 'CANNOT PROCESS CROSS-CHAIN TRANSFER: Network error';
     }
   };
 
@@ -438,7 +443,7 @@ export const PactProvider = (props) => {
     chainId
   ) => {
     try {
-      pollingNotif("", "TRANSFER IN PROGRESS..")
+      pollingNotif('', 'TRANSFER IN PROGRESS..');
       // const accountPubKey = getPubFromPriv(accountPrivKey);
       let chainBalances = {};
 
@@ -472,7 +477,7 @@ export const PactProvider = (props) => {
       await toast.dismiss(toastId.current);
       for (let i = 0; i < transfers.length; i++) {
         await transferCrossChainSameAccount(
-          "coin",
+          'coin',
           account,
           accountPrivKey,
           transfers[i][1],
@@ -485,8 +490,8 @@ export const PactProvider = (props) => {
     } catch (e) {
       await toast.dismiss(toastId.current);
       console.log(e);
-      return swal("CANNOT PROCESS BALANCE FUNDS:", "Network error", {
-        icon: "error",
+      return swal('CANNOT PROCESS BALANCE FUNDS:', 'Network error', {
+        icon: 'error',
       });
     }
   };

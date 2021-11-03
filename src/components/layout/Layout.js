@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useContext } from "react/cjs/react.development";
-import { Dimmer } from "semantic-ui-react";
-import styled from "styled-components";
-import { AuthContext } from "../../contexts/AuthContext";
-import CustomLoader from "../shared/CustomLoader";
+import React, { useState } from 'react';
+import { useContext } from 'react/cjs/react.development';
+import { Dimmer } from 'semantic-ui-react';
+import styled from 'styled-components';
+import { AuthContext } from '../../contexts/AuthContext';
+import CustomLoader from '../shared/CustomLoader';
 
-import Header from "./header/Header";
+import Header from './header/Header';
 
 const MainContainer = styled.div`
   display: flex;
@@ -35,11 +35,14 @@ const Layout = ({ loader, children }) => {
 
   return (
     <>
-      <CustomLoader loader={auth.loading} message="Switching Network.." />
+      <CustomLoader loader={auth.loading} message='Switching Network..' />
       {loader?.map((load) => load)}
-      <Dimmer active={sideBarIsVisible} style={{zIndex:1}}/>
+      <Dimmer active={sideBarIsVisible} style={{ zIndex: 1 }} />
       <MainContainer>
-        <Header sideBarIsVisible={sideBarIsVisible} setSideBarIsVisible={setSideBarIsVisible}/>
+        <Header
+          sideBarIsVisible={sideBarIsVisible}
+          setSideBarIsVisible={setSideBarIsVisible}
+        />
         <Container>{children}</Container>
       </MainContainer>
     </>

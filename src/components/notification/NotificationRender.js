@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 import {
   NotificationConsumer,
   NotificationProvider,
-} from "../../contexts/NotificationContext";
-import Notification from "./Notification";
+} from '../../contexts/NotificationContext';
+import Notification from './Notification';
 
 const NotificationRender = ({ children }) => {
   return (
