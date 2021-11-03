@@ -1,18 +1,23 @@
-import React, { useContext } from "react";
-import {  Dimmer, Menu, Sidebar } from "semantic-ui-react";
-import styled from "styled-components/macro";
-import { AuthContext } from "../../../contexts/AuthContext";
-import { MAINNET, TESTNET } from "../../../contexts/NetworkContext";
+import React, { useContext } from 'react';
+import { Dimmer, Menu, Sidebar } from 'semantic-ui-react';
+import styled from 'styled-components/macro';
+import { AuthContext } from '../../../contexts/AuthContext';
+import { MAINNET, TESTNET } from '../../../contexts/NetworkContext';
 
-import { DropdownIcon, HamburgerIcon, PowerIcon, CrossIcon } from "../../../assets";
-import ToggleSwitchButton from "../../shared/ToogleSwitchButton";
-import { useHistory, useLocation } from "react-router";
-import theme from "../../../styles/theme";
-import CustomPopup from "../../shared/CustomPopup";
-import { ViewportContext } from "../../../contexts/ViewportContext";
-import { MENU_LIST_COMPONENT } from "./MenuListComponents";
-import Button  from "../../shared/Button";
-
+import {
+  DropdownIcon,
+  HamburgerIcon,
+  PowerIcon,
+  CrossIcon,
+} from '../../../assets';
+import ToggleSwitchButton from '../../shared/ToogleSwitchButton';
+import { useHistory, useLocation } from 'react-router';
+import theme from '../../../styles/theme';
+import CustomPopup from '../../shared/CustomPopup';
+import { ViewportContext } from '../../../contexts/ViewportContext';
+import { MENU_LIST_COMPONENT } from './MenuListComponents';
+import Button from '../../shared/Button';
+import BellNotification from '../../right-modal-notification/BellNotification';
 
 const HeaderContainer = styled.div`
   position: sticky;
@@ -37,7 +42,7 @@ const LeftContainer = styled.div`
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
-  margin-left: 0px;
+    margin-left: 0px;
   }
 
   & > *:not(:last-child) {
@@ -90,7 +95,7 @@ const RightContainer = styled.div`
 
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
-    flex-flow: column;
+    /* flex-flow: column; */
     align-items: flex-end;
     & > *:first-child {
       margin-bottom: 10px;
@@ -115,34 +120,34 @@ const SideBarContainer = styled.div`
 const MenuLabelContainer = styled.div`
   display: flex;
   flex-flow: row;
-  
+
   justify-content: flex-start;
   width: 100%;
 
-   & > *:not(:last-child) {
+  & > *:not(:last-child) {
     align-self: center;
     margin-right: 10px;
   }
 
   & > *:last-child {
     margin-top: 0 !important;
-      align-self: center;
-      margin-right: 0px;
-      position: absolute;
-      right: 10px;
-    }
+    align-self: center;
+    margin-right: 0px;
+    position: absolute;
+    right: 10px;
+  }
 `;
 
 const BottomSidebarContainer = styled.div`
   display: flex;
-  width:100%;
+  width: 100%;
   position: absolute;
   flex-flow: column;
   align-items: center;
   justify-content: center;
   bottom: 25px;
 
-   & > *:not(:last-child) {
+  & > *:not(:last-child) {
     align-self: center;
     margin-top: 0 !important;
     margin-bottom: 10px;
@@ -150,19 +155,18 @@ const BottomSidebarContainer = styled.div`
 
   & > *:last-child {
     margin-top: 0 !important;
-      align-self: center;
-    }
-`;
-
-const LogoutContainer = styled.div`
-display:flex;
-align-items: center;
-
-svg {
-    margin:0 15px 0 0;
+    align-self: center;
   }
 `;
 
+const LogoutContainer = styled.div`
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin: 0 15px 0 0;
+  }
+`;
 
 const MenuItemsContainer = styled.div`
   display: flex;
@@ -174,7 +178,7 @@ const MenuItemsContainer = styled.div`
 
 const ToggleContainer = styled.div`
   display: flex;
-  border: 0.5px solid #FFFFFF;
+  border: 0.5px solid #ffffff;
   /* box-shadow: ${theme.boxshadow}; */
   border-radius: 5px;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
@@ -194,7 +198,7 @@ const Label = styled.span`
   text-transform: capitalize;
 `;
 
-const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
+const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
   const auth = useContext(AuthContext);
   const viewport = useContext(ViewportContext);
   const history = useHistory();
@@ -202,37 +206,37 @@ const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
 
   return (
     <HeaderContainer>
-            <Dimmer active={sideBarIsVisible} style={{zIndex:1}}/>
+      <Dimmer active={sideBarIsVisible} style={{ zIndex: 1 }} />
 
       <LeftContainer>
         {viewport.isMobile ? (
           // MOBILE MENU
           <>
             <HamburgerIcon
-              className="desktop-none"
+              className='desktop-none'
               onClick={() => {
                 setSideBarIsVisible(true);
               }}
             />
             <Sidebar
               as={Menu}
-              style={{display: "flex", maxWidth: "50%"}}
-              animation="overlay"
-              direction="left"
+              style={{ display: 'flex', maxWidth: '50%' }}
+              animation='overlay'
+              direction='left'
               vertical
-              className="custom-sidebar"
+              className='custom-sidebar'
               onHide={() => setSideBarIsVisible(false)}
               visible={sideBarIsVisible}
             >
               <SideBarContainer>
                 <MenuLabelContainer>
                   <HamburgerIcon
-                    style={{marginTop: "0px"}}
+                    style={{ marginTop: '0px' }}
                     onClick={() => {
                       setSideBarIsVisible(false);
                     }}
                   />
-                  <span style={{color: "#fff"}}>Menu</span>
+                  <span style={{ color: '#fff' }}>Menu</span>
                   <CrossIcon
                     onClick={() => {
                       setSideBarIsVisible(false);
@@ -240,12 +244,18 @@ const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
                   />
                 </MenuLabelContainer>
                 <MenuItemsContainer>
-                  {Object.values(MENU_LIST_COMPONENT).map((menu,index) => (
+                  {Object.values(MENU_LIST_COMPONENT).map((menu, index) => (
                     <Button
                       key={index}
-                      background= {(url.pathname === menu.route) ?  "#fff" :  "transparent"}
-                      color= {(url.pathname === menu.route) ?  theme.colors.primary :  "#fff"}
-                      border= {(url.pathname === menu.route) ? "" : "none"}
+                      background={
+                        url.pathname === menu.route ? '#fff' : 'transparent'
+                      }
+                      color={
+                        url.pathname === menu.route
+                          ? theme.colors.primary
+                          : '#fff'
+                      }
+                      border={url.pathname === menu.route ? '' : 'none'}
                       onClick={() => {
                         history.push(menu.route);
                       }}
@@ -255,28 +265,34 @@ const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
                   ))}
                 </MenuItemsContainer>
                 <BottomSidebarContainer onClick={() => auth.logout()}>
-                    <hr style={{display: "flex", width: "90%", borderTop: "1px solid #fff"}}/>
-                    <Label
-                        style={{
-                          color: theme.colors.white,
-                          fontSize: 16,
-                        }}
-                    >
+                  <hr
+                    style={{
+                      display: 'flex',
+                      width: '90%',
+                      borderTop: '1px solid #fff',
+                    }}
+                  />
+                  <Label
+                    style={{
+                      color: theme.colors.white,
+                      fontSize: 16,
+                    }}
+                  >
                     {auth.user.username}
-                    </Label>
-                <LogoutContainer>
-                  <PowerIcon/>
-                  <span style={{color: "#fff"}}>Log Out</span>
-                </LogoutContainer>
+                  </Label>
+                  <LogoutContainer>
+                    <PowerIcon />
+                    <span style={{ color: '#fff' }}>Log Out</span>
+                  </LogoutContainer>
                 </BottomSidebarContainer>
               </SideBarContainer>
             </Sidebar>
           </>
         ) : (
           // DESKTOP MENU
-          Object.values(MENU_LIST_COMPONENT).map((menu,index) => (
+          Object.values(MENU_LIST_COMPONENT).map((menu, index) => (
             <Item
-            key={index}
+              key={index}
               exact
               onClick={() => {
                 history.push(menu.route);
@@ -288,6 +304,8 @@ const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
         )}
       </LeftContainer>
       <RightContainer>
+        <BellNotification hasNotification={true} />
+
         <ToggleContainer>
           <ToggleSwitchButton
             label1={MAINNET.label}
@@ -296,6 +314,7 @@ const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
             onChange={() => {}}
           />
         </ToggleContainer>
+
         {viewport.isMobile ? (
           <Item>
             {/* <Label
@@ -314,21 +333,21 @@ const Header = ({sideBarIsVisible,setSideBarIsVisible}) => {
             <CustomPopup
               trigger={
                 <Label
-                    style={{
+                  style={{
                     color: theme.colors.white,
                     fontSize: 16,
-                    alignItems: "center",
+                    alignItems: 'center',
                   }}
                 >
                   {auth.user.username}
                   <DropdownIcon
-                    style={{ marginLeft: "10px", marginBottom: "4px" }}
+                    style={{ marginLeft: '10px', marginBottom: '4px' }}
                   />
                 </Label>
               }
-              position="bottom right"
+              position='bottom right'
               onClick={() => auth.logout()}
-              text="Log out"
+              text='Log out'
             />
           </Item>
         )}

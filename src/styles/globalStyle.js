@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components';
 
 export default createGlobalStyle`
     *, *:before, *:after {
@@ -53,9 +53,9 @@ export default createGlobalStyle`
       color: #fff;
     }
 
-    .ui.disabled.button {
+    /* .ui.disabled.button {
       opacity: 1 !important;
-    }
+    } */
 
     .desktop-none {
       @media (min-width: ${({ theme: { mediaQueries } }) =>
