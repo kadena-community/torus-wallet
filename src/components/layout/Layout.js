@@ -43,7 +43,7 @@ const Layout = ({ loader, children }) => {
           sideBarIsVisible={sideBarIsVisible}
           setSideBarIsVisible={setSideBarIsVisible}
         />
-        <Container>{children}</Container>
+        <Container id='main-content'>{children}</Container>
       </MainContainer>
     </>
   );

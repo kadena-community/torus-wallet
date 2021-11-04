@@ -27,7 +27,13 @@ const NotificationSignal = styled.div`
   left: -3px;
 `;
 
-const Notification = ({ hasNotification, containerStyle, items, color }) => {
+const Notification = ({
+  hasNotification,
+  containerStyle,
+  items,
+  color,
+  onClick,
+}) => {
   const [showFloatingMenu, setShowFloatingMenu] = useState(false);
 
   const onContainerClick = () => {
@@ -35,7 +41,7 @@ const Notification = ({ hasNotification, containerStyle, items, color }) => {
   };
 
   return (
-    <Container onClick={onContainerClick} style={containerStyle} color={color}>
+    <Container onClick={onClick} style={containerStyle} color={color}>
       {/* <OutsideClickHandler
         onOutsideClick={() => {
           setShowFloatingMenu(false);
