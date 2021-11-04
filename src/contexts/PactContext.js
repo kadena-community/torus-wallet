@@ -297,6 +297,124 @@ export const PactProvider = (props) => {
     }
   };
 
+  // const safeTransferCrossChainSameAccount = async (
+  //   tokenAddress,
+  //   account,
+  //   accountPrivKey,
+  //   amount,
+  //   fromChain,
+  //   toChain
+  // ) => {
+  //   pollingNotif(
+  //     '',
+  //     `TRANSFER SAME CHAIN IN PROCESS, Trasfering ${amount} KDA by chain ${fromChain} to ${toChain}`
+  //   );
+  //   try {
+  //     const accountPubKey = getPubFromPriv(accountPrivKey);
+  //     const burn = await Pact.fetch.send(
+  //       {
+  //         pactCode: `(${tokenAddress}.transfer-crosschain ${JSON.stringify(
+  //           account
+  //         )} ${JSON.stringify(account)} (read-keyset "own-ks") ${JSON.stringify(
+  //           toChain
+  //         )} ${formatAmount(amount)})`,
+  //         networkId: networkContext.network.networkID,
+  //         keyPairs: [
+  //           {
+  //             //EXCHANGE ACCOUNT KEYS
+  //             //  PLEASE KEEP SAFE
+  //             publicKey: accountPubKey,
+  //             secretKey: accountPrivKey,
+  //             clist: [],
+  //           },
+  //         ],
+  //         meta: Pact.lang.mkMeta(
+  //           account,
+  //           fromChain,
+  //           GAS_PRICE,
+  //           GAS_LIMIT,
+  //           creationTime(),
+  //           TTL
+  //         ),
+  //         envData: {
+  //           'own-ks': { pred: 'keys-all', keys: [accountPubKey] },
+  //         },
+  //       },
+  //       host(fromChain)
+  //     );
+  //     const reqKey = burn.requestKeys[0];
+  //     const pollRes = await pollTxRes(reqKey, host(fromChain));
+  //     if (pollRes.result.status === 'success') {
+  //       await toast.dismiss(toastId.current);
+  //       const pactId = pollRes.continuation.pactId;
+  //       const targetChainId =
+  //         pollRes.continuation.yield.provenance.targetChainId;
+  //       const spvCmd = { targetChainId: targetChainId, requestKey: pactId };
+  //       let proof;
+  //       while (!proof) {
+  //         const spvRes = await Pact.fetch.spv(spvCmd, host(fromChain));
+  //         if (
+  //           spvRes !==
+  //           'SPV target not reachable: target chain not reachable. Chainweb instance is too young'
+  //         ) {
+  //           proof = spvRes;
+  //         }
+  //         await sleepPromise(5000);
+  //       }
+  //       const meta = Pact.lang.mkMeta(
+  //         'free-x-chain-gas',
+  //         toChain,
+  //         GAS_PRICE,
+  //         300,
+  //         creationTime(),
+  //         TTL
+  //       );
+
+  //       const continuationCommand = makePactContCommand(
+  //         toChain,
+  //         reqKey,
+  //         proof,
+  //         1,
+  //         meta,
+  //         networkContext.network.networkID
+  //       );
+  //       const mint = await Pact.fetch.send(continuationCommand, host(toChain));
+  //       const mintReqKey = mint.requestKeys[0];
+  //       const mintPollRes = await pollTxRes(mintReqKey, host(toChain));
+  //       if (mintPollRes.result.status === 'success') {
+
+  //       } else {
+  //         await toast.dismiss(toastId.current);
+  //         //funds were burned on fromChain but not minted on toChain
+  //         //visit https://transfer.chainweb.com/xchain.html and approve the mint with the reqKey
+
+  //         return swal(
+  //           `PARTIAL CROSS-CHAIN TRANSFER:`,
+  //           `Funds burned on chain ${fromChain} with reqKey ${reqKey} please mint on chain ${toChain}`,
+  //           {
+  //             icon: 'warning',
+  //           }
+  //         );
+  //       }
+  //     } else {
+  //       await toast.dismiss(toastId.current);
+  //       //burn did not work
+
+  //       return swal(
+  //         `CANNOT PROCESS CROSS-CHAIN TRANSFER:`,
+  //         `Cannot send from origin chain ${fromChain}`,
+  //         {
+  //           icon: 'error',
+  //         }
+  //       );
+  //     }
+  //   } catch (e) {
+  //     await toast.dismiss(toastId.current);
+  //     console.log(e);
+  //     return 'CANNOT PROCESS CROSS-CHAIN TRANSFER: Network error';
+  //   }
+  // };
+
   const transferCrossChainSameAccount = async (
     tokenAddress,
     account,
@@ -507,6 +625,7 @@ export const PactProvider = (props) => {
         balanceFunds,
         confirmResponseTransfer,
         setConfirmResponseTransfer,
+        transferCrossChainSameAccount,
         pollingNotif,
         transfer,
         getAcctDetails,

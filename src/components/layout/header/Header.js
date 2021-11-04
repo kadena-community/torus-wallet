@@ -18,6 +18,9 @@ import { ViewportContext } from '../../../contexts/ViewportContext';
 import { MENU_LIST_COMPONENT } from './MenuListComponents';
 import Button from '../../shared/Button';
 import BellNotification from '../../right-modal-notification/BellNotification';
+import { RightModalContext } from '../../../contexts/RightModalContext';
+import { ModalContext } from '../../../contexts/ModalContext';
+import RightModalContent from '../../right-modal-notification/RightModalContent';
 
 const HeaderContainer = styled.div`
   position: sticky;
@@ -201,6 +204,7 @@ const Label = styled.span`
 const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
   const auth = useContext(AuthContext);
   const viewport = useContext(ViewportContext);
+  const rightModal = useContext(RightModalContext);
   const history = useHistory();
   const url = useLocation();
 
@@ -304,7 +308,15 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
         )}
       </LeftContainer>
       <RightContainer>
-        <BellNotification hasNotification={true} />
+        <BellNotification
+          hasNotification={true}
+          onClick={() => {
+            rightModal.openModal({
+              title: 'Notification',
+              content: <RightModalContent />,
+            });
+          }}
+        />
 
         <ToggleContainer>
           <ToggleSwitchButton
