@@ -459,13 +459,14 @@ function DashboardContainer(props) {
                 </Popup>
               </Item>
             </div>
+
             <Message negative style={{ maxWidth: '450px' }}>
               <Message.Header style={{ fontSize: '22px' }}>
-                Warning: Not officially supported wallet
+                Warning: unofficial wallet
               </Message.Header>
               <p style={{ fontSize: '18px' }}>
-                If you transfered funds into this account you can transfer them
-                by exporting your private key and using{' '}
+                You can transfer the funds on it by exporting your private key
+                and using:{' '}
                 <a
                   href='https://transfer.chainweb.com'
                   target='_blank'
