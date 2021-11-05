@@ -144,11 +144,12 @@ const MenuLabelContainer = styled.div`
 const BottomSidebarContainer = styled.div`
   display: flex;
   width: 100%;
-  position: absolute;
+  margin-top: 20px;
+  /* position: absolute !important; */
   flex-flow: column;
   align-items: center;
   justify-content: center;
-  bottom: 25px;
+  /* bottom: 25px; */
 
   & > *:not(:last-child) {
     align-self: center;
@@ -247,27 +248,6 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
                     }}
                   />
                 </MenuLabelContainer>
-                <MenuItemsContainer>
-                  {Object.values(MENU_LIST_COMPONENT).map((menu, index) => (
-                    <Button
-                      key={index}
-                      background={
-                        url.pathname === menu.route ? '#fff' : 'transparent'
-                      }
-                      color={
-                        url.pathname === menu.route
-                          ? theme.colors.primary
-                          : '#fff'
-                      }
-                      border={url.pathname === menu.route ? '' : 'none'}
-                      onClick={() => {
-                        history.push(menu.route);
-                      }}
-                    >
-                      {menu.name}
-                    </Button>
-                  ))}
-                </MenuItemsContainer>
                 <BottomSidebarContainer onClick={() => auth.logout()}>
                   <hr
                     style={{
@@ -289,6 +269,28 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
                     <span style={{ color: '#fff' }}>Log Out</span>
                   </LogoutContainer>
                 </BottomSidebarContainer>
+                <MenuItemsContainer>
+                  {Object.values(MENU_LIST_COMPONENT).map((menu, index) => (
+                    <Button
+                      key={index}
+                      background={
+                        url.pathname === menu.route ? '#fff' : 'transparent'
+                      }
+                      color={
+                        url.pathname === menu.route
+                          ? theme.colors.primary
+                          : '#fff'
+                      }
+                      border={url.pathname === menu.route ? '' : 'none'}
+                      //need to be inserted again
+                      /* onClick={() => {
+                        history.push(menu.route);
+                      }} */
+                    >
+                      {menu.name}
+                    </Button>
+                  ))}
+                </MenuItemsContainer>
               </SideBarContainer>
             </Sidebar>
           </>
@@ -298,9 +300,10 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
             <Item
               key={index}
               exact
-              onClick={() => {
+              //need to be inserted again
+              /* onClick={() => {
                 history.push(menu.route);
-              }}
+              }} */
             >
               {menu.name}
             </Item>
@@ -308,7 +311,7 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
         )}
       </LeftContainer>
       <RightContainer>
-        <BellNotification
+        {/* <BellNotification
           hasNotification={true}
           onClick={() => {
             rightModal.openModal({
@@ -316,7 +319,7 @@ const Header = ({ sideBarIsVisible, setSideBarIsVisible }) => {
               content: <RightModalContent />,
             });
           }}
-        />
+        /> */}
 
         <ToggleContainer>
           <ToggleSwitchButton

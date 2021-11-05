@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
-import { Button, Loader, Dimmer } from "semantic-ui-react";
-import styled from "styled-components/macro";
-import { GoogleIcon, KadenaTorusIcon } from "../assets";
-import { AuthContext } from "../contexts/AuthContext";
-import { ViewportContext } from "../contexts/ViewportContext";
-import theme from "../styles/theme";
+import React, { useContext } from 'react';
+import { Button, Loader, Dimmer, Message } from 'semantic-ui-react';
+import styled from 'styled-components/macro';
+import { GoogleIcon, KadenaTorusIcon } from '../assets';
+import { AuthContext } from '../contexts/AuthContext';
+import { ViewportContext } from '../contexts/ViewportContext';
+import theme from '../styles/theme';
 
 const HomeContainer = styled.div`
   position: relative;
@@ -84,6 +84,7 @@ const HomeRightContent = styled.div`
   flex-flow: column;
   justify-content: left;
   align-items: left;
+  padding: 20px;
 `;
 
 const HomeTitle = styled.span`
@@ -153,14 +154,14 @@ function LoginContainer(props) {
     <>
       {viewport.isMobile && (
         <HomeTopContainer>
-          <KadenaTorusIcon style={{ maxWidth: "100%" }} />
+          <KadenaTorusIcon style={{ maxWidth: '100%' }} />
         </HomeTopContainer>
       )}
 
       <HomeContainer>
         {!viewport.isMobile && (
           <HomeLeftContainer>
-            <KadenaTorusIcon style={{ maxWidth: "100%" }} />
+            <KadenaTorusIcon style={{ maxWidth: '100%' }} />
           </HomeLeftContainer>
         )}
 
@@ -171,8 +172,8 @@ function LoginContainer(props) {
             <HomeParagraph>Login using Google via Direct Auth</HomeParagraph>
 
             {auth.loading ? (
-              <Dimmer active style={{ borderRadius: "16px" }}>
-                <Loader content="Retrieving your data.." />
+              <Dimmer active style={{ borderRadius: '16px' }}>
+                <Loader content='Retrieving your data..' />
               </Dimmer>
             ) : (
               <Button
@@ -182,15 +183,32 @@ function LoginContainer(props) {
                   background: `${theme.colors.white}  0% 0% no-repeat padding-box`,
                   boxShadow: theme.boxshadow,
                   color: theme.colors.black,
-                  flexFlow: "row",
+                  flexFlow: 'row',
                 }}
               >
                 <ButtonContent>
-                  <GoogleIcon style={{ marginRight: "25px" }} />
+                  <GoogleIcon style={{ marginRight: '25px' }} />
                   <HomeButtonText>Sign in with Google</HomeButtonText>
                 </ButtonContent>
               </Button>
             )}
+
+            <Message negative style={{ marginTop: '90px' }}>
+              <Message.Header>
+                Warning: Not officially supported wallet
+              </Message.Header>
+              <p>
+                If you transfered funds into this account you can transfer them
+                by exporting your private key and using{' '}
+                <a
+                  href='https://transfer.chainweb.com'
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  transfer.chainweb.com
+                </a>
+              </p>
+            </Message>
           </HomeRightContent>
         </HomeRightContainer>
       </HomeContainer>

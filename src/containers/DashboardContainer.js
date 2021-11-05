@@ -1,17 +1,18 @@
-import React, { useContext } from "react";
-import { Button, Popup } from "semantic-ui-react";
-import { useHistory } from "react-router";
-import styled from "styled-components/macro";
+import React, { useContext, useState } from 'react';
+import { Button, Message, Popup } from 'semantic-ui-react';
+import { useHistory } from 'react-router';
+import styled from 'styled-components/macro';
 
-import MyButton from "../components/shared/Button";
-import { reduceBalance } from "../util/reduceBalance";
-import { reduceToken } from "../util/reduceToken";
-import { AuthContext } from "../contexts/AuthContext";
-import { NetworkContext } from "../contexts/NetworkContext";
-import { ROUTE_TRANSFER } from "../router/routes";
-import Layout from "../components/layout/Layout";
-import { CopyIcon, DropdownIcon, KadenaBlueIcon } from "../assets";
-import theme from "../styles/theme";
+import MyButton from '../components/shared/Button';
+import { reduceBalance } from '../util/reduceBalance';
+import { reduceToken } from '../util/reduceToken';
+import { AuthContext } from '../contexts/AuthContext';
+import { NetworkContext } from '../contexts/NetworkContext';
+import { ROUTE_TRANSFER } from '../router/routes';
+import Layout from '../components/layout/Layout';
+import { CopyIcon, DropdownIcon, KadenaBlueIcon } from '../assets';
+import theme from '../styles/theme';
+import { PactContext } from '../contexts/PactContext';
 
 const Item = styled.div`
   color: ${({ theme: { colors } }) => colors.white};
@@ -39,7 +40,7 @@ const ContentContainer = styled.div`
 `;
 
 const KeyContainer = styled.div`
-  margin-top: 10%;
+  margin-top: 5%;
   margin-bottom: 40px;
   display: flex;
   width: 100%;
@@ -207,31 +208,35 @@ function DashboardContainer(props) {
   const history = useHistory();
   const auth = useContext(AuthContext);
   const networkContext = useContext(NetworkContext);
+  const pact = useContext(PactContext);
+
+  const [errorOnPrivKey, setErrorOnPrivKey] = useState(false);
+  const [privKey, setPrivKey] = useState();
 
   return (
     <Layout>
       <ContentContainer>
         <KeyContainer>
-          <TitleContainer>
+          <TitleContainer style={{ marginTop: '20px' }}>
             <Title>Your Public Key:</Title>
           </TitleContainer>
           <FormContainer
-            style={{ color: theme.colors.white, flexFlow: "row" }}
-            id="pubKey"
+            style={{ color: theme.colors.white, flexFlow: 'row' }}
+            id='pubKey'
           >
-            <div className="mobile-none">{auth.user.publicKey}</div>
-            <div className="desktop-none">
+            <div className='mobile-none'>{auth.user.publicKey}</div>
+            <div className='desktop-none'>
               {reduceToken(auth.user.publicKey)}
             </div>
             <Popup
-              content="copied!"
-              on="click"
-              position="bottom right"
+              content='copied!'
+              on='click'
+              position='bottom right'
               style={{ opacity: 0.7 }}
               pinned
               trigger={
                 <CopyIcon
-                  style={{ marginLeft: "35px" }}
+                  style={{ marginLeft: '35px' }}
                   onClick={() => {
                     navigator.clipboard.writeText(auth.user.publicKey);
                   }}
@@ -239,6 +244,73 @@ function DashboardContainer(props) {
               }
             />
           </FormContainer>
+
+          {!privKey && (
+            <ButtonContainer>
+              <MyButton
+                onClick={() => {
+                  auth.loginForTransfer().then((result) => {
+                    if (result) {
+                      let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
+                      if (pubKeyByNewLogAcct === auth.user.publicKey) {
+                        setErrorOnPrivKey(false);
+                        setPrivKey(result);
+                      } else {
+                        setErrorOnPrivKey(true);
+                      }
+                    }
+                  });
+                }}
+              >
+                Export Private Key
+              </MyButton>
+            </ButtonContainer>
+          )}
+
+          {errorOnPrivKey && (
+            <TitleContainer
+              style={{
+                color: 'red',
+                alignItems: 'center',
+                marginTop: '10px',
+                fontSize: '18px',
+              }}
+            >
+              The login account and confirmation account must be the same,
+              please try again.
+            </TitleContainer>
+          )}
+
+          {privKey && (
+            <>
+              <TitleContainer style={{ marginTop: '15px' }}>
+                <Title>Your Private Key:</Title>
+              </TitleContainer>
+              <FormContainer
+                style={{ color: '#FFFFFF', flexFlow: 'row' }}
+                id='privKey'
+              >
+                <div className='mobile-none'>{privKey}</div>
+                <div className='desktop-none'>{reduceToken(privKey)}</div>
+                <Popup
+                  className='mobile-none'
+                  content='copied!'
+                  on='click'
+                  position='bottom right'
+                  style={{ opacity: 0.7 }}
+                  pinned
+                  trigger={
+                    <CopyIcon
+                      style={{ marginLeft: '35px' }}
+                      onClick={() => {
+                        navigator.clipboard.writeText(privKey);
+                      }}
+                    />
+                  }
+                />
+              </FormContainer>
+            </>
+          )}
         </KeyContainer>
         <TitleContainer>
           <Title>Account Balance</Title>
@@ -250,21 +322,21 @@ function DashboardContainer(props) {
                   <SubTitle>
                     Total
                     <DropdownIcon
-                      style={{ marginLeft: "10px", marginBottom: "4px" }}
+                      style={{ marginLeft: '10px', marginBottom: '4px' }}
                     />
                   </SubTitle>
                 }
-                on="click"
+                on='click'
                 offset={[0, 1]}
-                position="bottom left"
+                position='bottom left'
                 style={{
-                  height: "196px",
-                  overflow: "auto",
+                  height: '196px',
+                  overflow: 'auto',
                   background:
-                    "transparent radial-gradient(closest-side at 31% -64%, #201669 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box",
-                  boxShadow: "0px 4px 56px #8383833D",
-                  border: "1px solid #110750",
-                  borderRadius: "10px",
+                    'transparent radial-gradient(closest-side at 31% -64%, #201669 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box',
+                  boxShadow: '0px 4px 56px #8383833D',
+                  border: '1px solid #110750',
+                  borderRadius: '10px',
                 }}
               >
                 {auth.user.balance.map((bal, index) => {
@@ -277,36 +349,36 @@ function DashboardContainer(props) {
                 })}
               </Popup>
 
-              <SubTitle className="mobile-none">
+              <SubTitle className='mobile-none'>
                 {auth.user.balance.reduce((a, b) => {
                   return parseFloat(a) + parseFloat(b);
-                })}{" "}
+                })}{' '}
                 KDA
               </SubTitle>
-              <SubTitle className="desktop-none">
+              <SubTitle className='desktop-none'>
                 {reduceBalance(
                   auth.user.balance.reduce((a, b) => {
                     return parseFloat(a) + parseFloat(b);
                   })
-                )}{" "}
+                )}{' '}
                 KDA
               </SubTitle>
             </SubTitleContainer>
           )}
         </TitleContainer>
-        <FormContainer style={{ color: "#FFFFFF" }}>
+        <FormContainer style={{ color: '#FFFFFF' }}>
           <RowContainer>
             <BalanceCurrencyTitle>
-              <KadenaBlueIcon style={{ marginRight: "10px" }} />
+              <KadenaBlueIcon style={{ marginRight: '10px' }} />
               kadena
             </BalanceCurrencyTitle>
-            <CurrencyBalance className="mobile-none">
+            <CurrencyBalance className='mobile-none'>
               {auth.user.balance.reduce((a, b) => {
                 return parseFloat(a) + parseFloat(b);
               })}
               <CurrencyBalanceTokenName>KDA</CurrencyBalanceTokenName>
             </CurrencyBalance>
-            <CurrencyBalance className="desktop-none">
+            <CurrencyBalance className='desktop-none'>
               {reduceBalance(
                 auth.user.balance.reduce((a, b) => {
                   return parseFloat(a) + parseFloat(b);
@@ -321,12 +393,12 @@ function DashboardContainer(props) {
                 </RowContainer> */}
           <ButtonContainer>
             <Button.Group fluid>
-              <MyButton disabled buttonStyle={{ marginRight: "10px" }}>
+              <MyButton disabled buttonStyle={{ marginRight: '10px' }}>
                 Top up
               </MyButton>
               <MyButton
-                disabled={auth.user.balance === 0}
-                buttonStyle={{ marginLeft: "10px" }}
+                disabled
+                buttonStyle={{ marginLeft: '10px' }}
                 onClick={() => history.push(ROUTE_TRANSFER)}
               >
                 Transfer
@@ -334,19 +406,18 @@ function DashboardContainer(props) {
             </Button.Group>
           </ButtonContainer>
         </FormContainer>
+        {networkContext.network.name === 'testnet' && !auth.loading && (
+          <ButtonContainer>
+            <a
+              href='https://faucet.testnet.chainweb.com/'
+              target='_blank'
+              rel='noreferrer'
+            >
+              <MyButton>Go to Testnet Faucet</MyButton>
+            </a>
+          </ButtonContainer>
+        )}
       </ContentContainer>
-
-      {networkContext.network.name === "testnet" && !auth.loading && (
-        <ButtonContainer>
-          <a
-            href="https://faucet.testnet.chainweb.com/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MyButton>Go to Testnet Faucet</MyButton>
-          </a>
-        </ButtonContainer>
-      )}
     </Layout>
   );
 }
