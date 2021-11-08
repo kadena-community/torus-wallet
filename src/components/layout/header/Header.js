@@ -112,10 +112,10 @@ const RightContainer = styled.div`
 
 const SideBarContainer = styled.div`
   z-index: 100;
+  height: 100%;
   display: flex;
   flex-flow: column;
   align-items: center;
-  justify-content: center;
   margin-top: 15px;
   padding: 15px;
 `;
@@ -124,7 +124,7 @@ const MenuLabelContainer = styled.div`
   display: flex;
   flex-flow: row;
 
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
 
   & > *:not(:last-child) {
@@ -136,7 +136,6 @@ const MenuLabelContainer = styled.div`
     margin-top: 0 !important;
     align-self: center;
     margin-right: 0px;
-    position: absolute;
     right: 10px;
   }
 `;
@@ -144,11 +143,11 @@ const MenuLabelContainer = styled.div`
 const BottomSidebarContainer = styled.div`
   display: flex;
   width: 100%;
-  position: absolute;
+  /* position: absolute; */
   flex-flow: column;
   align-items: center;
   justify-content: center;
-  bottom: 25px;
+  /* bottom: 25px; */
 
   & > *:not(:last-child) {
     align-self: center;
@@ -173,9 +172,9 @@ const LogoutContainer = styled.div`
 
 const MenuItemsContainer = styled.div`
   display: flex;
+  flex: 1;
   flex-flow: column;
   width: 100%;
-  justify-content: center;
   margin-top: 30px;
 `;
 
