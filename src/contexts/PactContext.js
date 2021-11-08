@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import Pact from 'pact-lang-api';
 import { NetworkContext } from './NetworkContext';
 import swal from 'sweetalert';
-import { formatAmount } from '../util/format-helpers';
+import { checkKey, formatAmount } from '../util/format-helpers';
 import SuccessTransactionModal from '../components/modals/SuccessTransactionModal';
 import { ModalContext } from './ModalContext';
 import { NotificationContext, STATUSES } from './NotificationContext';
@@ -27,6 +27,8 @@ export const PactProvider = (props) => {
   const TTL = 28800;
   const GAS_PRICE = 0.0000000001;
   const GAS_LIMIT = 10000;
+  const HIGH_GAS_LIMIT = 60000;
+  const HIGH_GAS_PRICE = 0.00000001;
   const creationTime = () => Math.round(new Date().getTime() / 1000) - 15;
   const host = (chainId) =>
     `https://${networkContext.network.kadenaServer}/chainweb/0.0/${networkContext.network.networkID}/chain/${chainId}/pact`;
@@ -101,6 +103,32 @@ export const PactProvider = (props) => {
     } catch (e) {
       console.log(e);
       return swal('GET BALANCE FAILED: NETWORK ERROR', {
+        icon: 'error',
+      });
+    }
+  };
+
+  const getIsKAccount = async (tokenAddress, userAddress) => {
+    const accountExistOnLeastChain = [];
+    try {
+      //get balance for all 20 chains
+      for (let i = 0; i < 20; i++) {
+        const chainId = i.toString();
+        const acctDetails = await getAcctDetails(
+          tokenAddress,
+          userAddress,
+          chainId
+        );
+        if (acctDetails.account) {
+          accountExistOnLeastChain[chainId] = true;
+        } else {
+          accountExistOnLeastChain[chainId] = false;
+        }
+      }
+      return accountExistOnLeastChain;
+    } catch (e) {
+      console.log(e);
+      return swal('GET ACCOUNT INFO FAILED: NETWORK ERROR', {
         icon: 'error',
       });
     }
@@ -208,7 +236,7 @@ export const PactProvider = (props) => {
         'TRANSFER IN PROCESS:  The transfer will take a few minutes',
       message: reqKey || '',
       type: STATUSES.INFO,
-      autoClose: 92000,
+      // autoClose: 92000,
       hideProgressBar: false,
     }));
   };
@@ -297,123 +325,137 @@ export const PactProvider = (props) => {
     }
   };
 
-  // const safeTransferCrossChainSameAccount = async (
-  //   tokenAddress,
-  //   account,
-  //   accountPrivKey,
-  //   amount,
-  //   fromChain,
-  //   toChain
-  // ) => {
-  //   pollingNotif(
-  //     '',
-  //     `TRANSFER SAME CHAIN IN PROCESS, Trasfering ${amount} KDA by chain ${fromChain} to ${toChain}`
-  //   );
-  //   try {
-  //     const accountPubKey = getPubFromPriv(accountPrivKey);
-  //     const burn = await Pact.fetch.send(
-  //       {
-  //         pactCode: `(${tokenAddress}.transfer-crosschain ${JSON.stringify(
-  //           account
-  //         )} ${JSON.stringify(account)} (read-keyset "own-ks") ${JSON.stringify(
-  //           toChain
-  //         )} ${formatAmount(amount)})`,
-  //         networkId: networkContext.network.networkID,
-  //         keyPairs: [
-  //           {
-  //             //EXCHANGE ACCOUNT KEYS
-  //             //  PLEASE KEEP SAFE
-  //             publicKey: accountPubKey,
-  //             secretKey: accountPrivKey,
-  //             clist: [],
-  //           },
-  //         ],
-  //         meta: Pact.lang.mkMeta(
-  //           account,
-  //           fromChain,
-  //           GAS_PRICE,
-  //           GAS_LIMIT,
-  //           creationTime(),
-  //           TTL
-  //         ),
-  //         envData: {
-  //           'own-ks': { pred: 'keys-all', keys: [accountPubKey] },
-  //         },
-  //       },
-  //       host(fromChain)
-  //     );
-  //     const reqKey = burn.requestKeys[0];
-  //     const pollRes = await pollTxRes(reqKey, host(fromChain));
-  //     if (pollRes.result.status === 'success') {
-  //       await toast.dismiss(toastId.current);
-  //       const pactId = pollRes.continuation.pactId;
-  //       const targetChainId =
-  //         pollRes.continuation.yield.provenance.targetChainId;
-  //       const spvCmd = { targetChainId: targetChainId, requestKey: pactId };
-  //       let proof;
-  //       while (!proof) {
-  //         const spvRes = await Pact.fetch.spv(spvCmd, host(fromChain));
-  //         if (
-  //           spvRes !==
-  //           'SPV target not reachable: target chain not reachable. Chainweb instance is too young'
-  //         ) {
-  //           proof = spvRes;
-  //         }
-  //         await sleepPromise(5000);
-  //       }
-  //       const meta = Pact.lang.mkMeta(
-  //         'free-x-chain-gas',
-  //         toChain,
-  //         GAS_PRICE,
-  //         300,
-  //         creationTime(),
-  //         TTL
-  //       );
+  const createAddresses = async (
+    tokenAddress,
+    publicKeys,
+    signingAccount,
+    signingPrivKey
+  ) => {
+    if (
+      !publicKeys
+        .map((x) => checkKey(x))
+        .reduce((p, c) => {
+          return p && c;
+        }, true)
+    ) {
+      return console.log(
+        'CREATE ADDRESS FAILED: 1 or more public keys invalid'
+      );
+    } else {
+      const signingPubKey = getPubFromPriv(signingPrivKey);
+      try {
+        let pactCode = '';
+        let envData = {};
+        for (let i = 0; i < publicKeys.length; i++) {
+          const ksName = `ks${i}`;
+          envData[ksName] = {
+            pred: 'keys-all',
+            keys: [publicKeys[i]],
+          };
+          const kAccount = 'k:' + publicKeys[i];
+          pactCode += `(${tokenAddress}.create-account ${JSON.stringify(
+            kAccount
+          )} (read-keyset "${ksName}"))`;
+        }
+        const reqKeys = {};
+        //register accounts on all 20 chains
+        for (let i = 0; i < 20; i++) {
+          let chainId = i.toString();
+          const reqKey = await createAddressHelper(
+            pactCode,
+            chainId,
+            envData,
+            signingAccount,
+            signingPubKey,
+            signingPrivKey
+          );
+          reqKeys[chainId] = reqKey;
+        }
+        console.log(reqKeys);
+        //poll all 20 chains for results
+        let pollResponses = {};
+        let failedPollResponses = {};
+        console.log(
+          '🚀 ~ file: PactContext.js ~ line 378 ~ PactProvider ~ failedPollResponses',
+          failedPollResponses
+        );
+        for (let i = 0; i < 20; i++) {
+          let chainId = i.toString();
+          const pollRes = await pollTxRes(reqKeys[chainId], host(chainId));
+          pollResponses[chainId] = pollRes;
+          if (
+            pollResponses[chainId] ===
+            'POLL FAILED: Please try again. Note that the transaction specified may not exist on target chain'
+          ) {
+            failedPollResponses[chainId] = pollResponses[chainId];
+          }
+        }
+        console.log(pollResponses);
+        //all were successfull
+        if (Object.keys(failedPollResponses).length === 0) {
+          return console.log(`CREATE ADDRESS SUCCESS: for ${publicKeys}`);
+        } else {
+          console.log(failedPollResponses);
+          return console.log(
+            'CANNOT PROCESS CREATE ADDRESS: one or more chains failed to create. Please run method again with new keys'
+          );
+        }
+      } catch (e) {
+        console.log(e);
+        return console.log('CANNOT PROCESS CREATE ADDRESS: network error');
+      }
+    }
+  };
 
-  //       const continuationCommand = makePactContCommand(
-  //         toChain,
-  //         reqKey,
-  //         proof,
-  //         1,
-  //         meta,
-  //         networkContext.network.networkID
-  //       );
-  //       const mint = await Pact.fetch.send(continuationCommand, host(toChain));
-  //       const mintReqKey = mint.requestKeys[0];
-  //       const mintPollRes = await pollTxRes(mintReqKey, host(toChain));
-  //       if (mintPollRes.result.status === 'success') {
-
-  //       } else {
-  //         await toast.dismiss(toastId.current);
-  //         //funds were burned on fromChain but not minted on toChain
-  //         //visit https://transfer.chainweb.com/xchain.html and approve the mint with the reqKey
-
-  //         return swal(
-  //           `PARTIAL CROSS-CHAIN TRANSFER:`,
-  //           `Funds burned on chain ${fromChain} with reqKey ${reqKey} please mint on chain ${toChain}`,
-  //           {
-  //             icon: 'warning',
-  //           }
-  //         );
-  //       }
-  //     } else {
-  //       await toast.dismiss(toastId.current);
-  //       //burn did not work
-
-  //       return swal(
-  //         `CANNOT PROCESS CROSS-CHAIN TRANSFER:`,
-  //         `Cannot send from origin chain ${fromChain}`,
-  //         {
-  //           icon: 'error',
-  //         }
-  //       );
-  //     }
-  //   } catch (e) {
-  //     await toast.dismiss(toastId.current);
-  //     console.log(e);
-  //     return 'CANNOT PROCESS CROSS-CHAIN TRANSFER: Network error';
-  //   }
-  // };
+  const createAddressHelper = async (
+    pactCode,
+    chainId,
+    envData,
+    signingAccount,
+    signingPubKey,
+    signingPrivKey
+  ) => {
+    try {
+      const cmd = {
+        pactCode: pactCode,
+        networkId: networkContext.network.networkID,
+        keyPairs: [
+          {
+            //EXCHANGE ACCOUNT KEYS
+            //  PLEASE KEEP SAFE
+            //YOU CAN CONSIDER USING AN ACCOUNT WITH VERY FEW FUNDS IN IT
+            //  an account with 1kda will create over a million addresses!
+            //MUST HAVE FUNDS ON ALL CHAINS
+            publicKey: signingPubKey,
+            secretKey: signingPrivKey,
+            clist: [
+              //capability for gas
+              {
+                name: `coin.GAS`,
+                args: [],
+              },
+            ],
+          },
+        ],
+        meta: Pact.lang.mkMeta(
+          signingAccount,
+          chainId,
+          HIGH_GAS_PRICE,
+          HIGH_GAS_LIMIT,
+          creationTime(),
+          TTL
+        ),
+        envData: envData,
+      };
+      const res = await Pact.fetch.send(cmd, host(chainId));
+      console.log(res);
+      const reqKey = res.requestKeys[0];
+      return reqKey;
+    } catch (e) {
+      console.log(e);
+      return 'ERROR: tx not accepted by blockchain';
+    }
+  };
 
   const transferCrossChainSameAccount = async (
     tokenAddress,
@@ -423,6 +465,7 @@ export const PactProvider = (props) => {
     fromChain,
     toChain
   ) => {
+    debugger;
     setConfirmResponseTransfer(false);
     /* swal(
       "TRANSFER SAME CHAIN IN PROCESS",
@@ -458,7 +501,7 @@ export const PactProvider = (props) => {
           meta: Pact.lang.mkMeta(
             account,
             fromChain,
-            GAS_PRICE,
+            HIGH_GAS_PRICE,
             GAS_LIMIT,
             creationTime(),
             TTL
@@ -614,6 +657,65 @@ export const PactProvider = (props) => {
     }
   };
 
+  const transferCrossChainSameAccountForCreationKAccount = async (
+    tokenAddress,
+    account,
+    accountPrivKey,
+    chainBalances
+  ) => {
+    try {
+      pollingNotif('', 'TRANSFER IN PROGRESS..');
+      // const accountPubKey = getPubFromPriv(accountPrivKey);
+
+      var sorted = [];
+      for (var cid in chainBalances) {
+        sorted.push([cid, chainBalances[cid]]);
+      }
+      sorted.sort(function (a, b) {
+        return b[1] - a[1];
+      });
+
+      var total = 0;
+      var transfers = [];
+
+      var availableChain = [];
+      const amountNeeded = HIGH_GAS_PRICE;
+      for (let i = 0; i < sorted.length; i++) {
+        if (sorted[i][1] === 0) {
+          transfers.push([sorted[i][0], amountNeeded]);
+          total = total + amountNeeded;
+        } else {
+          availableChain.push([sorted[i][0], sorted[i][1]]);
+        }
+      }
+      console.log(
+        '🚀 ~ file: PactContext.js ~ line 680 ~ PactProvider ~ transfers',
+        transfers
+      );
+      var fromChain = availableChain.find((chain) => chain[1] > total);
+
+      await toast.dismiss(toastId.current);
+      for (let i = 0; i < transfers.length; i++) {
+        await transferCrossChainSameAccount(
+          tokenAddress,
+          account,
+          accountPrivKey,
+          transfers[i][1],
+          fromChain[0],
+          transfers[i][0]
+        );
+      }
+
+      return swal(`Transfer success to all chain`);
+    } catch (e) {
+      await toast.dismiss(toastId.current);
+      console.log(e);
+      return swal('CANNOT PROCESS BALANCE FUNDS:', 'Network error', {
+        icon: 'error',
+      });
+    }
+  };
+
   return (
     <PactContext.Provider
       value={{
@@ -621,11 +723,14 @@ export const PactProvider = (props) => {
         txList,
         setTxList,
         getPubFromPriv,
+        getIsKAccount,
         getBalance,
         balanceFunds,
         confirmResponseTransfer,
         setConfirmResponseTransfer,
         transferCrossChainSameAccount,
+        transferCrossChainSameAccountForCreationKAccount,
+        createAddresses,
         pollingNotif,
         transfer,
         getAcctDetails,

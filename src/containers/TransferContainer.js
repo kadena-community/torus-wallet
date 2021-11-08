@@ -4,6 +4,7 @@ import { Dropdown } from 'semantic-ui-react';
 import { Input as SUIInput } from 'semantic-ui-react';
 import styled from 'styled-components/macro';
 import * as Yup from 'yup';
+import Pact from 'pact-lang-api';
 import { useFormik } from 'formik';
 import swal from 'sweetalert';
 import { AuthContext } from '../contexts/AuthContext';
@@ -12,7 +13,11 @@ import { PactContext } from '../contexts/PactContext';
 import Button from '../components/shared/Button';
 import InputWithLabel from '../components/shared/InputWithLabel';
 
-import { checkKey } from '../util/format-helpers';
+import {
+  checkKAccount,
+  checkKey,
+  extractPubKeyFromKAccount,
+} from '../util/format-helpers';
 import { accountBalance, reduceBalance } from '../util/reduceBalance';
 import { chainList } from '../constants/chainList';
 import Layout from '../components/layout/Layout';
@@ -60,11 +65,15 @@ const KeyContainer = styled.div`
 
 const TitleContainer = styled.div`
   display: flex;
-  justify-content: left;
-  align-items: flex-start;
-  flex-flow: column;
+  justify-content: space-between;
+  align-items: center;
+  flex-flow: row;
   margin-bottom: 10px;
   width: 100%;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel + 1}px`}) {
+    flex-flow: column;
+  }
 `;
 
 const Title = styled.span`
@@ -131,10 +140,6 @@ const TransferContainer = () => {
     senderChain: Yup.string().required('Select Sender Chain'),
     receiverChain: Yup.string().required('Select Receiver Chain'),
   });
-  console.log(
-    '🚀 ~ file: TransferContainer.js ~ line 136 ~ validationSchema ~ validationSchema',
-    validationSchema
-  );
 
   const {
     values,
@@ -244,64 +249,62 @@ const TransferContainer = () => {
           }
         );
       }
+      if (!checkKAccount(toAcct)) {
+        //destination address not a k-style account
+        return swal(
+          `CANNOT PROCESS TRANSFER: destination account not k-style: ${toAcct}`,
+          {
+            icon: 'error',
+          }
+        );
+      }
       //check if toAcct exists on specified chain
       const details = await pact.getAcctDetails(tokenAddress, toAcct, chainId);
       if (details.account !== null) {
-        //account exists on chain
-        if (checkKey(toAcct) && toAcct !== details.guard.keys[0]) {
-          //account is a public key account
-          //but the public key guard does not match account name public key
-          //EXIT function
-
-          return swal(' non-matching public keys', {
-            icon: 'error',
-          });
-        } else {
-          //send to this account with this guard
-          const res = await pact.transfer(
-            tokenAddress,
-            fromAcct,
-            fromAcctPrivKey,
-            toAcct,
-            amount,
-            chainId,
-            details.guard
-          );
-          return res;
-        }
+        //k-account exists on chain
+        //send to this account with its already existing guard
+        const res = await pact.transfer(
+          tokenAddress,
+          fromAcct,
+          fromAcctPrivKey,
+          toAcct,
+          amount,
+          chainId,
+          details.guard
+        );
+        return res;
       } else if (details === 'CANNOT FETCH ACCOUNT: network error') {
         //account fetch failed
         //EXIT function
-
-        return swal('CANNOT PROCESS TRANSFER: account not fetched', {
+        return swal(`CANNOT PROCESS TRANSFER: account not fetched`, {
           icon: 'error',
         });
       } else {
-        //toAcct does not yet exist
-        if (checkKey(toAcct)) {
-          //toAcct does not exist, but is a valid address
-
-          // NOTE An exchange might want to ask the user to confirm that they
-          // own the private key corresponding to this public key.
-
-          //send to this
-          const res = await pact.transfer(
-            tokenAddress,
-            fromAcct,
-            fromAcctPrivKey,
-            toAcct,
-            amount,
-            chainId,
-            { pred: 'keys-all', keys: [toAcct] }
+        //toAcct does not yet exist, but is k-style account name
+        // NOTE An exchange might want to ask the user to confirm that they
+        // own the private key corresponding to this public key.
+        const pubKey = extractPubKeyFromKAccount(toAcct);
+        if (!pubKey) {
+          // Extraction failed; In theory this shouldnt happen since we already checked the
+          // k-account is valid, but better to check just in case
+          return swal(
+            'CANNOT PROCESS TRANSFER: public key not extracted from address',
+            {
+              icon: 'error',
+            }
           );
-          return res;
-        } else {
-          //toAcct is totally invalid
-          //EXIT function
-          return swal('CANNOT PROCESS TRANSFER: new account not a public key', {
-            icon: 'error',
-          });
         }
+        //send to this
+        const res = await pact.transfer(
+          tokenAddress,
+          fromAcct,
+          fromAcctPrivKey,
+          toAcct,
+          amount,
+          chainId,
+          { pred: 'keys-all', keys: [pubKey] }
+        );
+        return res;
       }
     } catch (e) {
       //most likely a formatting or rate limiting error
@@ -453,6 +456,47 @@ const TransferContainer = () => {
         <KeyContainer>
           <TitleContainer>
             <Title>Transfer</Title>
+            <Button
+              type='submit'
+              fontSize='20px'
+              disabled={values.amount > accountBalance(auth.user.balance)}
+              onClick={() => {
+                auth.loginForTransfer().then((result) => {
+                  let pubKeyByNewLogAcct = pact.getPubFromPriv(result);
+                  // ADD CONTROL THAT CONFIRMATION ACCOUNT IS LOGIN ACCOUNT
+
+                  // TO MAKE AN ACCOUNT A K:ACCOUNT, MUST HAVE AT LEAST 0.00000001 KDA ON ALL CHAIN
+                  // THE SOFTWARE NEED TO HAVE A FUNCTION THAT DIVIDE THE AMOUNT BETWEEN THE CHAINS
+
+                  if (auth.isNotKAccount) {
+                    pact.transferCrossChainSameAccountForCreationKAccount(
+                      'coin',
+                      pubKeyByNewLogAcct,
+                      result,
+                      auth.user.balance
+                    );
+                    // const keyPairs = [];
+                    // // Each of these accounts can be used with the correspondingly indexed keypair
+                    // const kAccounts = [];
+
+                    // //change from 100 to any number of keys you would like to create
+                    // for (let i = 0; i < 100; i++) {
+                    //   const kp = Pact.crypto.genKeyPair();
+                    //   kAccounts.push('k:' + kp.publicKey);
+                    //   keyPairs.push(kp);
+                    // }
+                    // pact.createAddresses(
+                    //   'coin',
+                    //   [kAccounts],
+                    //   pubKeyByNewLogAcct,
+                    //   result
+                    // );
+                  }
+                });
+              }}
+            >
+              Make the Account a K:Account
+            </Button>
           </TitleContainer>
           <FormContainer
             style={{ color: '#FFFFFF', flexFlow: 'column' }}

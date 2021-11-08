@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { createContext, useContext, useState, useEffect } from "react";
-import Pact from "pact-lang-api";
-import { TorusContext } from "./TorusContext";
-import { PactContext } from "./PactContext";
-import { NetworkContext } from "./NetworkContext";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import Pact from 'pact-lang-api';
+import { TorusContext } from './TorusContext';
+import { PactContext } from './PactContext';
+import { NetworkContext } from './NetworkContext';
 
-const GOOGLE = "google";
+const GOOGLE = 'google';
 
 const verifierMap = {
   [GOOGLE]: {
-    name: "Google",
-    typeOfLogin: "google",
+    name: 'Google',
+    typeOfLogin: 'google',
     verifier: process.env.REACT_APP_TORUS_VERIFIER,
     clientId: process.env.REACT_APP_TORUS_GOOGLE_CLIENT_ID,
   },
@@ -24,6 +24,11 @@ export const AuthProvider = (props) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [connectingLoading, setConnectingLoading] = useState(false);
+  const [isNotKAccount, setNotIsKAccount] = useState(false);
+  console.log(
+    '🚀 ~ file: AuthContext.js ~ line 28 ~ AuthProvider ~ isKAccount',
+    isNotKAccount
+  );
 
   const [totalBalance, setTotalBalance] = useState(0);
   const torus = useContext(TorusContext);
@@ -32,7 +37,7 @@ export const AuthProvider = (props) => {
     async function getBalanceWrapper() {
       if (user?.publicKey) {
         setLoading(true);
-        const balance = await pact.getBalance("coin", user.publicKey);
+        const balance = await pact.getBalance('coin', user.publicKey);
         setUser({ ...user, balance: balance });
         setLoading(false);
       }
@@ -43,7 +48,7 @@ export const AuthProvider = (props) => {
   useEffect(() => {
     async function getBalanceWrapper() {
       if (user?.publicKey) {
-        const balance = await pact.getBalance("coin", user.publicKey);
+        const balance = await pact.getBalance('coin', user.publicKey);
         setUser({ ...user, balance: balance });
       }
     }
@@ -63,14 +68,26 @@ export const AuthProvider = (props) => {
       const keyPair = Pact.crypto.restoreKeyPairFromSecretKey(
         loginDetails.privateKey
       );
-      const balance = await pact.getBalance("coin", keyPair.publicKey);
+      console.log(
+        '🚀 ~ file: AuthContext.js ~ line 65 ~ login ~ loginDetails.privateKey',
+        loginDetails.privateKey
+      );
+      pact.getIsKAccount('coin', keyPair.publicKey).then((result) => {
+        setNotIsKAccount(result.includes(false));
+      });
+
+      const balance = await pact.getBalance('coin', keyPair.publicKey);
+      console.log(
+        '🚀 ~ file: AuthContext.js ~ line 76 ~ login ~ balance',
+        balance
+      );
       setUser({
         username: loginDetails?.userInfo?.name,
         publicKey: keyPair.publicKey,
         balance: balance,
       });
     } catch (error) {
-      console.error(error, "login caught");
+      console.error(error, 'login caught');
     } finally {
       setLoading(false);
     }
@@ -87,7 +104,7 @@ export const AuthProvider = (props) => {
       });
       return loginDetails.privateKey;
     } catch (error) {
-      console.error(error, "login caught");
+      console.error(error, 'login caught');
     } finally {
       setConnectingLoading(false);
     }
@@ -108,6 +125,7 @@ export const AuthProvider = (props) => {
         totalBalance,
         setTotalBalance,
         loginForTransfer,
+        isNotKAccount,
       }}
     >
       {props.children}
