@@ -13,7 +13,7 @@ export const reduceBalance = (balance, prec = 3) => {
 };
 
 export const keepDecimal = (decimal) => {
-  const num = decimal.toString().indexOf(".") === -1 ? `${decimal}.0` : decimal;
+  const num = decimal.toString().indexOf('.') === -1 ? `${decimal}.0` : decimal;
   return num;
 };
 
@@ -32,17 +32,17 @@ export const extractDecimal = (num) => {
 };
 
 export const limitDecimalPlaces = (numStr, count) => {
-  if (numStr.indexOf(".") == -1) {
-    if (numStr === "") return "";
+  if (numStr.indexOf('.') === -1) {
+    if (numStr === '') return '';
     if (!isNaN(numStr)) return Number(numStr);
   }
   if (
-    numStr.indexOf(".") === numStr.length - 1 &&
+    numStr.indexOf('.') === numStr.length - 1 &&
     !isNaN(numStr.slice(0, numStr.length - 1))
   ) {
     return numStr;
   }
-  if (numStr.length - numStr.indexOf(".") > count && count !=0) {
+  if (numStr.length - numStr.indexOf('.') > count && count !== 0) {
     numStr = parseFloat(numStr).toFixed(count);
     return numStr;
   } else {
@@ -53,4 +53,13 @@ export const limitDecimalPlaces = (numStr, count) => {
 export const getCorrectBalance = (balance) => {
   const balanceClean = !isNaN(balance) ? balance : balance.decimal;
   return balanceClean;
+};
+
+// auth.user.balance, the value must be an array
+export const accountBalance = (balance) => {
+  return reduceBalance(
+    balance.reduce((a, b) => {
+      return parseFloat(a) + parseFloat(b);
+    })
+  );
 };

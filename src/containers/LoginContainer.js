@@ -1,35 +1,33 @@
-import React, { useContext} from "react";
-import { Button, Loader, Dimmer } from 'semantic-ui-react';
-import styled from 'styled-components/macro';
-import { ReactComponent as HomeLogoImage } from "../assets/images/kadena-torus.svg";
-import { ReactComponent as GoogleLogo } from "../assets/images/google_logo.svg";
+import React, { useContext } from "react";
+import { Button, Loader, Dimmer } from "semantic-ui-react";
+import styled from "styled-components/macro";
+import { GoogleIcon, KadenaTorusIcon } from "../assets";
 import { AuthContext } from "../contexts/AuthContext";
 import { ViewportContext } from "../contexts/ViewportContext";
-
+import theme from "../styles/theme";
 
 const HomeContainer = styled.div`
   position: relative;
   display: flex;
   flex-flow: row;
   textAlign: center;
-  margin: 72px 64px;
+  /* margin: 72px 64px; */
   height: 100%;
   padding: 10px 10px;
   border-radius: 24px;
   border: 24px;
-  box-shadow: 0px 4px 56px #8383833D;
+  box-shadow:${theme.boxshadowLogin};
   align-items: center;
   justify-content: center;
   opacity: 1;
-  background: transparent radial-gradient(closest-side at 31% -64%, #2B237C 0%, #251C72 31%, #0F054C 100%) 0% 0% no-repeat padding-box;;
+  background: ${theme.backgroundGradient}
   @media (max-width: ${({ theme: { mediaQueries } }) =>
-      `${mediaQueries.mobilePixel + 1}px`}) {
-    margin: 30px 18px 18px;
+    `${mediaQueries.mobilePixel + 1}px`}) {
+    /* margin: 30px 18px 18px; */
     padding 0px;
     flex-flow: column;
   }
 `;
-
 
 const HomeTopContainer = styled.div`
   display: flex;
@@ -37,7 +35,6 @@ const HomeTopContainer = styled.div`
   justify-content: left;
   align-items: flex-start;
   padding: 10px 20px 0px;
-  /* height: 100%; */
   width: 75%;
   background: transparent;
   opacity: 1;
@@ -68,13 +65,17 @@ const HomeRightContainer = styled.div`
   align-items: center;
   height: 100%;
   width: 50%;
-  background: #FFFFFF 0% 0% no-repeat padding-box;
+  background: ${theme.colors.white} 0% 0% no-repeat padding-box;
   border-radius: 16px;
   opacity: 1;
   @media (max-width: ${({ theme: { mediaQueries } }) =>
       `${mediaQueries.mobilePixel + 1}px`}) {
     width: 100%;
     padding: 0px;
+  }
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    padding: 16px;
   }
 `;
 
@@ -85,48 +86,53 @@ const HomeRightContent = styled.div`
   align-items: left;
 `;
 
-
-
 const HomeTitle = styled.span`
-  font: normal normal bold 32px/38px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.highBold};
   text-align: left;
   letter-spacing: 0px;
-  color: #212121;
+  color: ${({ theme: { colors } }) => colors.black}
   text-transform: capitalize;
   opacity: 1;
   margin-bottom: 25px;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+    `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    font:${({ theme: { macroFont } }) => macroFont.mediumBold};
+  }
 `;
 
 const HomeSubTitle = styled.span`
-  font: normal normal bold 24px/32px roboto-regular;
+  font: ${({ theme: { macroFont } }) => macroFont.mediumRegular};
   text-align: left;
   letter-spacing: 0px;
-  color: #212121;
+  color: ${({ theme: { colors } }) => colors.black}
   text-transform: capitalize;
   opacity: 1;
   margin-bottom: 15px;
 `;
 
 const HomeParagraph = styled.span`
-  font: normal normal normal 16px/21px roboto-regular;
+  font: ${({ theme: { macroFont } }) => macroFont.tinyRegular};
   text-align: left;
   letter-spacing: 0px;
-  color: #212121;
+  color: ${({ theme: { colors } }) => colors.black}
   text-transform: capitalize;
   opacity: 1;
   margin-bottom: 20px;
 `;
 
 const HomeButtonText = styled.span`
-  font: normal normal bold 17px/21px roboto-bold;
+  font: ${({ theme: { macroFont } }) => macroFont.tinyBold};
   text-align: left;
   letter-spacing: 0px;
-  color: #212121;
+  color: ${({ theme: { colors } }) => colors.black}
   text-transform: capitalize;
   opacity: 1;
   padding: 0px 20px;
+  @media (max-width: ${({ theme: { mediaQueries } }) =>
+    `${mediaQueries.mobileSmallPixel + 1}px`}) {
+    padding: 0px;
+  }
 `;
-
 
 const ButtonContent = styled.div`
   display: flex;
@@ -135,62 +141,61 @@ const ButtonContent = styled.div`
   width: 100%;
 `;
 
-
-function LoginContainer (props) {
-
+function LoginContainer(props) {
   const auth = useContext(AuthContext);
-  const viewport = useContext(ViewportContext)
+  const viewport = useContext(ViewportContext);
 
   const login = async () => {
-     await auth.login();
-  }
+    await auth.login();
+  };
 
-    return (
-        
-      <>
-        {viewport.isMobile && 
-          <HomeTopContainer className="desktop-none">
-            <HomeLogoImage className="desktop-none" style={{ maxWidth: "100%" }} />
-          </HomeTopContainer>
-         
-        }
-        
-        
-        <HomeContainer >
-          {!viewport.isMobile &&
-            <HomeLeftContainer>
-              <HomeLogoImage className="mobile-none" style={{maxWidth: "100%"}}/>
-            </HomeLeftContainer>
-          }
-            
-            <HomeRightContainer>
-            <HomeRightContent>
-                <HomeTitle>Hi, Welcome Back!</HomeTitle>
-                <HomeSubTitle>Access your Wallet</HomeSubTitle>
-                <HomeParagraph>Login using Google via Direct Auth</HomeParagraph>
-                
-            
-            
-            {
-            auth.loading ? (
-                <Dimmer active style={{borderRadius: "16px"}}>
-                    <Loader content='Retrieving your data..' />
-                </Dimmer>
+  return (
+    <>
+      {viewport.isMobile && (
+        <HomeTopContainer>
+          <KadenaTorusIcon style={{ maxWidth: "100%" }} />
+        </HomeTopContainer>
+      )}
+
+      <HomeContainer>
+        {!viewport.isMobile && (
+          <HomeLeftContainer>
+            <KadenaTorusIcon style={{ maxWidth: "100%" }} />
+          </HomeLeftContainer>
+        )}
+
+        <HomeRightContainer>
+          <HomeRightContent>
+            <HomeTitle>Hi, Welcome Back!</HomeTitle>
+            <HomeSubTitle>Access your Wallet</HomeSubTitle>
+            <HomeParagraph>Login using Google via Direct Auth</HomeParagraph>
+
+            {auth.loading ? (
+              <Dimmer active style={{ borderRadius: "16px" }}>
+                <Loader content="Retrieving your data.." />
+              </Dimmer>
             ) : (
-            <Button primary onClick={login} style={{ background: "#FFFFFF 0% 0% no-repeat padding-box", boxShadow: "0px 2px 6px #0000001A", color: "#212121", flexFlow: "row" }}>
+              <Button
+                primary
+                onClick={login}
+                style={{
+                  background: `${theme.colors.white}  0% 0% no-repeat padding-box`,
+                  boxShadow: theme.boxshadow,
+                  color: theme.colors.black,
+                  flexFlow: "row",
+                }}
+              >
                 <ButtonContent>
-                <GoogleLogo style={{marginRight: "25px"}} />
-                <HomeButtonText >Sign in with Google</HomeButtonText>
+                  <GoogleIcon style={{ marginRight: "25px" }} />
+                  <HomeButtonText>Sign in with Google</HomeButtonText>
                 </ButtonContent>
-            </Button>
-                )}
-            </HomeRightContent>
-            </HomeRightContainer>
-        </HomeContainer>
-        </>
-            
-    );
-  
+              </Button>
+            )}
+          </HomeRightContent>
+        </HomeRightContainer>
+      </HomeContainer>
+    </>
+  );
 }
 
 export default LoginContainer;

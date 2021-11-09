@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components';
 
 export default createGlobalStyle`
     *, *:before, *:after {
@@ -53,9 +53,9 @@ export default createGlobalStyle`
       color: #fff;
     }
 
-    .ui.disabled.button {
+    /* .ui.disabled.button {
       opacity: 1 !important;
-    }
+    } */
 
     .desktop-none {
       @media (min-width: ${({ theme: { mediaQueries } }) =>
@@ -70,4 +70,74 @@ export default createGlobalStyle`
         display: none !important;
       }
     }
+
+  .ui.dropdown{
+    font-size: 18px;
+    color: #ffffff!important;
+    background: transparent !important;
+    border-radius: 5px;
+    font-family: ${({ theme: { fontFamily } }) => fontFamily.bold};
+  }
+
+  .ui.selection.visible.dropdown{
+      background:  ${({ theme: { colors } }) => colors.primary} !important;
+  }
+  
+  .ui.selection.visible.dropdown>.text:not(.default){
+    color: #ffffff !important;
+  }
+
+  .ui.selection.visible.dropdown .menu{
+    border: 1px solid #ffffff !important;
+    border-top: none !important;
+  }
+
+  .ui.selection.dropdown .menu>.item{
+    background:  ${({ theme: { colors } }) => colors.primary};
+    color:#ffffff;
+    border: none;
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel}px`}) {
+        font-size: 12px;
+    }
+  }
+
+  .sender-dropdown.ui.dropdown{
+    font-size: 18px;
+    border: 1px solid #ffffff !important ;
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel}px`}) {
+        font-size: 12px;
+  }
+}
+
+  .receiver-dropdown.ui.dropdown{
+    font-size: 18px;
+    min-width: 7.5em !important;
+    border: none !important;
+
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel}px`}) {
+        font-size: 12px !important;
+        min-width: 3.5em !important;
+    }
+
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobilePixel}px`}) {
+        min-width: 7.5em !important;
+    }
+
+  }
+
+  .ui.input {
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    @media (max-width: ${({ theme: { mediaQueries } }) =>
+      `${mediaQueries.mobileSmallPixel}px`}) {
+        font-size: 12px !important;
+        min-width: 4.5em !important;
+    }
+}
+
+
 `;
